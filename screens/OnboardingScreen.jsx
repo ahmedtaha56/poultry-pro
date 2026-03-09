@@ -6,9 +6,10 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
-  SafeAreaView,
   ActivityIndicator,
-  Platform
+  Platform,
+  ScrollView,
+  StatusBar
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
@@ -20,8 +21,30 @@ import {
   Poppins_500Medium,
 } from "@expo-google-fonts/poppins";
 import { Feather } from "@expo/vector-icons";
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get("window");
+const isSmallScreen = height < 700;
+const isTablet = width > 600;
+const isIOS = Platform.OS === 'ios';
+
+// Safe area insets for different platforms
+const getBottomInset = () => {
+  if (Platform.OS === 'ios') {
+    return height > 800 ? 44 : 30; // iPhone X+ vs older iPhones
+  } else {
+    return 30; // Android - more padding for navigation bar
+  }
+};
+
+const getStatusBarHeight = () => {
+  if (Platform.OS === 'android') {
+    return StatusBar.currentHeight || 24;
+  }
+  return 0; // iOS handles this with SafeAreaView
+};
 
 // Helper function to convert shadow props to boxShadow string for web
 const shadowToBoxShadow = (shadowColor, shadowOffset, shadowOpacity, shadowRadius) => {
@@ -135,13 +158,19 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-        <LinearGradient
-          colors={["#FFF4F0", "#FFE8DC", "#FFFFFF"]}
-          style={styles.gradientBackground}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
+      <StatusBar 
+        barStyle="dark-content" 
+        backgroundColor="#FFF4F0"
+        translucent={Platform.OS === 'android'}
+      />
+      
+      <LinearGradient
+        colors={["#FFF4F0", "#FFE8DC", "#FFFFFF"]}
+        style={styles.gradientBackground}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
           {/* Modern Decorative Elements */}
           <View style={styles.decorativeElements}>
             <Animated.View style={[
@@ -168,97 +197,111 @@ export default function OnboardingScreen() {
             <View style={[styles.floatingShape, styles.shape4]} />
           </View>
 
-          <Animated.View style={[styles.content, { transform: [{ translateY: slideAnim }] }]}>
-            {/* Enhanced Icon Container */}  
-            <View style={styles.iconContainer}>
-              <View style={styles.iconBackground}>
-                <View style={styles.iconInnerGlow}>
-                  <Animated.View style={{ transform: [{ rotate: iconRotate }] }}>
-                    <Feather name="cpu" size={65} color="#E68A50" />
-                  </Animated.View>
-                </View>
-              </View>
-              <View style={styles.brandContainer}>
-                <Text style={styles.brandName}>PoultryPro</Text>
-                <Text style={styles.brandTagline}>Smart Farming Solutions</Text>
-              </View>
-            </View>
-
-            {/* Enhanced Heading */}
-            <View style={styles.headingContainer}>
-              <Text style={styles.mainHeading}>Revolutionize Your</Text>
-              <View style={styles.highlightedTextContainer}>
-                <LinearGradient
-                  colors={["#E68A50", "#F4A460", "#FF9F40"]}
-                  style={styles.textGradientBackground}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  <Text style={styles.highlightedText}>Poultry Business</Text>
-                </LinearGradient>
-              </View>
-              <Text style={styles.subHeading}>with AI-Powered Intelligence</Text>
-            </View>
-
-            {/* Enhanced Feature Cards */}
-            <View style={styles.featuresContainer}>
-              <View style={[styles.featureCard, styles.featureCard1]}>
-                <View style={styles.featureIconContainer}>
-                  <Feather name="shield" size={26} color="#E68A50" />
-                </View>
-                <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Smart Disease Detection</Text>
-                  <Text style={styles.featureDescription}>AI-powered health monitoring</Text>
-                </View>
-                <View style={styles.featureAccent} />
-              </View>
-              
-              <View style={[styles.featureCard, styles.featureCard2]}>
-                <View style={styles.featureIconContainer}>
-                  <Feather name="bar-chart-2" size={26} color="#E68A50" />
-                </View>
-                <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Analytics & Insights</Text>
-                  <Text style={styles.featureDescription}>Data-driven farm optimization</Text>
-                </View>
-                <View style={styles.featureAccent} />
-              </View>
-              
-              <View style={[styles.featureCard, styles.featureCard3]}>
-                <View style={styles.featureIconContainer}>
-                  <Feather name="headphones" size={26} color="#E68A50" />
-                </View>
-                <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Expert Consultation</Text>
-                  <Text style={styles.featureDescription}>24/7 professional support</Text>
-                </View>
-                <View style={styles.featureAccent} />
-              </View>
-            </View>
-
-            {/* Enhanced CTA Button */}
-            <TouchableOpacity
-              onPress={handleLetsBeginPress}
-              activeOpacity={0.9}
-              style={styles.button}
-            >
-              <Animated.View style={{ transform: [{ scale: buttonScaleAnim }] }}>
-                <LinearGradient
-                  colors={["#E68A50", "#F4A460", "#FF9F40"]}
-                  style={styles.gradientButton}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  <Text style={styles.buttonText}>Start Your Journey</Text>
-                  <View style={styles.arrowContainer}>
-                    <Feather name="arrow-right" size={22} color="#E68A50" />
+          {/* Scrollable Content */}
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
+            <Animated.View style={[styles.content, { transform: [{ translateY: slideAnim }] }]}>
+              {/* Enhanced Icon Container */}  
+              <View style={styles.iconContainer}>
+                <View style={styles.iconBackground}>
+                  <View style={styles.iconInnerGlow}>
+                    <Animated.View style={{ transform: [{ rotate: iconRotate }] }}>
+                      <Feather 
+                        name="cpu" 
+                        size={Math.max(40, Math.min(55, width * 0.12))} 
+                        color="#E68A50" 
+                      />
+                    </Animated.View>
                   </View>
-                </LinearGradient>
-              </Animated.View>
-            </TouchableOpacity>
-          </Animated.View>
-        </LinearGradient>
-      </Animated.View>
+                </View>
+                <View style={styles.brandContainer}>
+                  <Text style={styles.brandName}>PoultryPro</Text>
+                  <Text style={styles.brandTagline}>Smart Farming Solutions</Text>
+                </View>
+              </View>
+
+              {/* Enhanced Heading */}
+              <View style={styles.headingContainer}>
+                <Text style={styles.mainHeading}>Revolutionize Your</Text>
+                <View style={styles.highlightedTextContainer}>
+                  <LinearGradient
+                    colors={["#E68A50", "#F4A460", "#FF9F40"]}
+                    style={styles.textGradientBackground}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <Text style={styles.highlightedText}>Poultry Business</Text>
+                  </LinearGradient>
+                </View>
+                <Text style={styles.subHeading}>with AI-Powered Intelligence</Text>
+              </View>
+
+              {/* Enhanced Feature Cards */}
+              <View style={styles.featuresContainer}>
+                <View style={[styles.featureCard, styles.featureCard1]}>
+                  <View style={styles.featureIconContainer}>
+                    <Feather name="shield" size={Math.max(18, Math.min(24, width * 0.055))} color="#E68A50" />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>Smart Disease Detection</Text>
+                    <Text style={styles.featureDescription}>AI-powered health monitoring</Text>
+                  </View>
+                  <View style={styles.featureAccent} />
+                </View>
+                
+                <View style={[styles.featureCard, styles.featureCard2]}>
+                  <View style={styles.featureIconContainer}>
+                    <Feather name="bar-chart-2" size={Math.max(18, Math.min(24, width * 0.055))} color="#E68A50" />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>Analytics & Insights</Text>
+                    <Text style={styles.featureDescription}>Data-driven farm optimization</Text>
+                  </View>
+                  <View style={styles.featureAccent} />
+                </View>
+                
+                <View style={[styles.featureCard, styles.featureCard3]}>
+                  <View style={styles.featureIconContainer}>
+                    <Feather name="headphones" size={Math.max(18, Math.min(24, width * 0.055))} color="#E68A50" />
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>Expert Consultation</Text>
+                    <Text style={styles.featureDescription}>24/7 professional support</Text>
+                  </View>
+                  <View style={styles.featureAccent} />
+                </View>
+              </View>
+
+              {/* CTA Button inside content */}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={handleLetsBeginPress}
+                  activeOpacity={0.9}
+                  style={styles.button}
+                >
+                  <Animated.View style={{ transform: [{ scale: buttonScaleAnim }] }}>
+                    <LinearGradient
+                      colors={["#E68A50", "#F4A460", "#FF9F40"]}
+                      style={styles.gradientButton}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                    >
+                      <Text style={styles.buttonText}>Start Your Journey</Text>
+                      <View style={styles.arrowContainer}>
+                        <Feather name="arrow-right" size={Math.max(16, Math.min(18, width * 0.045))} color="#E68A50" />
+                      </View>
+                    </LinearGradient>
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </ScrollView>
+        </Animated.View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
@@ -275,14 +318,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    paddingBottom: 0, // Remove any bottom padding
   },
   gradientBackground: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    width: '100%',
-    position: 'relative',
+    paddingTop: Platform.OS === 'android' ? getStatusBarHeight() : 0,
   },
   decorativeElements: {
     position: 'absolute',
@@ -293,75 +333,79 @@ const styles = StyleSheet.create({
   floatingShape: {
     position: 'absolute',
     borderRadius: 50,
-    opacity: 0.12,
+    opacity: 0.08,
   },
   shape1: {
-    width: 120,
-    height: 120,
+    width: Math.max(80, Math.min(100, width * 0.2)),
+    height: Math.max(80, Math.min(100, width * 0.2)),
     backgroundColor: '#E68A50',
-    top: '12%',
-    right: '8%',
-    borderRadius: 60,
+    top: '8%',
+    right: '5%',
   },
   shape2: {
-    width: 80,
-    height: 80,
+    width: Math.max(60, Math.min(70, width * 0.15)),
+    height: Math.max(60, Math.min(70, width * 0.15)),
     backgroundColor: '#F4A460',
-    bottom: '25%',
-    left: '3%',
-    borderRadius: 40,
+    bottom: '35%',
+    left: '2%',
   },
   shape3: {
-    width: 100,
-    height: 100,
+    width: Math.max(70, Math.min(85, width * 0.18)),
+    height: Math.max(70, Math.min(85, width * 0.18)),
     backgroundColor: '#FF9F40',
-    top: '45%',
-    left: '82%',
-    borderRadius: 50,
+    top: '35%',
+    left: '85%',
   },
   shape4: {
-    width: 60,
-    height: 60,
+    width: Math.max(50, Math.min(60, width * 0.13)),
+    height: Math.max(50, Math.min(60, width * 0.13)),
     backgroundColor: '#E68A50',
-    top: '70%',
-    right: '15%',
-    borderRadius: 30,
+    top: '65%',
+    right: '10%',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: Math.max(16, width * 0.04),
+    paddingTop: Math.max(15, height * 0.02), // Reduced from 0.025
+    paddingBottom: Math.max(40, getBottomInset() + 20), // Increased bottom padding for safety
   },
   content: {
     alignItems: "center",
     width: "100%",
-    paddingVertical: 20,
     zIndex: 1,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 45,
+    marginBottom: Math.max(18, height * 0.025), // Reduced from 0.035
   },
   iconBackground: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: Math.max(100, Math.min(120, width * 0.25)),
+    height: Math.max(100, Math.min(120, width * 0.25)),
+    borderRadius: Math.max(50, Math.min(60, width * 0.125)),
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: Math.max(12, height * 0.015), // Reduced from 0.02
     ...Platform.select({
       web: {
-        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.35)', { width: 0, height: 15 }, 1, 30),
+        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.25)', { width: 0, height: 8 }, 1, 20),
       },
       default: {
         shadowColor: '#E68A50',
-        shadowOffset: { width: 0, height: 15 },
-        shadowOpacity: 0.35,
-        shadowRadius: 30,
-        elevation: 15,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 10,
       }
     }),
   },
   iconInnerGlow: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: Math.max(80, Math.min(95, width * 0.2)),
+    height: Math.max(80, Math.min(95, width * 0.2)),
+    borderRadius: Math.max(40, Math.min(47.5, width * 0.1)),
     backgroundColor: '#FFF4F0',
     justifyContent: 'center',
     alignItems: 'center',
@@ -370,91 +414,93 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   brandName: {
-    fontSize: 26,
+    fontSize: Math.max(20, Math.min(24, width * 0.06)),
     fontFamily: "Poppins_700Bold",
     color: "#B85A3E",
-    marginBottom: 4,
+    marginBottom: 3, // Reduced from 4
   },
   brandTagline: {
-    fontSize: 15,
+    fontSize: Math.max(12, Math.min(14, width * 0.035)),
     fontFamily: "Poppins_500Medium",
     color: "#E68A50",
     opacity: 0.9,
   },
   headingContainer: {
     alignItems: 'center',
-    marginBottom: 45,
-    paddingHorizontal: 10,
+    marginBottom: Math.max(18, height * 0.025), // Reduced from 0.035
+    paddingHorizontal: Math.max(10, width * 0.025),
+    maxWidth: isTablet ? '80%' : '100%',
   },
   mainHeading: {
-    fontSize: 34,
+    fontSize: Math.max(24, Math.min(30, width * 0.07)),
     fontFamily: "Poppins_600SemiBold",
     color: "#B85A3E",
     textAlign: 'center',
-    lineHeight: 40,
-    marginBottom: 10,
+    lineHeight: Math.max(30, Math.min(36, width * 0.085)),
+    marginBottom: 6, // Reduced from 8
   },
   highlightedTextContainer: {
-    borderRadius: 20,
-    marginVertical: 10,
+    borderRadius: Math.max(15, width * 0.04),
+    marginVertical: Math.max(6, height * 0.008), // Reduced from 0.01
     overflow: 'hidden',
     ...Platform.select({
       web: {
-        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.3)', { width: 0, height: 8 }, 1, 16),
+        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.2)', { width: 0, height: 6 }, 1, 12),
       },
       default: {
         shadowColor: '#E68A50',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 6,
       }
     }),
   },
   textGradientBackground: {
-    paddingHorizontal: 25,
-    paddingVertical: 12,
+    paddingHorizontal: Math.max(18, width * 0.045),
+    paddingVertical: Math.max(8, height * 0.01),
   },
   highlightedText: {
-    fontSize: 38,
+    fontSize: Math.max(26, Math.min(32, width * 0.075)),
     fontFamily: "Poppins_700Bold",
     color: "white",
     textAlign: 'center',
-    lineHeight: 44,
+    lineHeight: Math.max(32, Math.min(38, width * 0.09)),
   },
   subHeading: {
-    fontSize: 17,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     fontFamily: "Poppins_400Regular",
     color: "#E68A50",
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 6, // Reduced from 8
     opacity: 0.95,
   },
   featuresContainer: {
     width: '100%',
-    marginBottom: 45,
-    paddingHorizontal: 10,
+    maxWidth: isTablet ? 600 : '100%',
+    alignSelf: 'center',
+    marginBottom: Math.max(20, height * 0.025), // Reduced from 0.04
   },
   featureCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: 22,
-    paddingVertical: 20,
-    marginBottom: 16,
-    borderRadius: 20,
+    paddingHorizontal: Math.max(16, width * 0.04),
+    paddingVertical: Math.max(14, height * 0.018), // Reduced from 0.02
+    marginBottom: Math.max(10, height * 0.012), // Reduced from 0.015
+    borderRadius: Math.max(16, width * 0.04),
     position: 'relative',
     overflow: 'hidden',
     ...Platform.select({
       web: {
-        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.15)', { width: 0, height: 6 }, 1, 18),
+        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.12)', { width: 0, height: 4 }, 1, 12),
       },
       default: {
         shadowColor: '#E68A50',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 18,
-        elevation: 6,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+        elevation: 4,
       }
     }),
   },
@@ -463,86 +509,96 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    width: 4,
+    width: 3,
     backgroundColor: '#E68A50',
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
+    borderTopRightRadius: Math.max(16, width * 0.04),
+    borderBottomRightRadius: Math.max(16, width * 0.04),
   },
   featureIconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: Math.max(40, Math.min(46, width * 0.1)),
+    height: Math.max(40, Math.min(46, width * 0.1)),
+    borderRadius: Math.max(20, Math.min(23, width * 0.05)),
     backgroundColor: '#FFF4F0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 18,
-    borderWidth: 2,
+    marginRight: Math.max(12, width * 0.03),
+    borderWidth: 1.5,
     borderColor: '#FFE8DC',
   },
   featureContent: {
     flex: 1,
   },
   featureTitle: {
-    fontSize: 17,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     fontFamily: 'Poppins_600SemiBold',
     color: '#B85A3E',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   featureDescription: {
-    fontSize: 15,
+    fontSize: Math.max(12, Math.min(13, width * 0.032)),
     fontFamily: 'Poppins_400Regular',
     color: '#E68A50',
     opacity: 0.85,
   },
+  // Button container inside content - moved closer to features
+  buttonContainer: {
+    width: '100%',
+    paddingHorizontal: Math.max(8, width * 0.02),
+    marginTop: Math.max(15, height * 0.018), // Reduced from 0.025
+    alignItems: 'center',
+  },
   button: {
-    borderRadius: 35,
+    borderRadius: Math.max(25, width * 0.065),
     overflow: "hidden",
-    width: '88%',
+    width: '100%',
+    maxWidth: Math.min(300, width - 60),
+    alignSelf: 'center',
     ...Platform.select({
       web: {
-        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.45)', { width: 0, height: 15 }, 1, 25),
+        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.35)', { width: 0, height: 8 }, 1, 16),
       },
       default: {
         shadowColor: '#E68A50',
-        shadowOffset: { width: 0, height: 15 },
-        shadowOpacity: 0.45,
-        shadowRadius: 25,
-        elevation: 15,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
+        elevation: 8,
       }
     }),
   },
   gradientButton: {
-    paddingVertical: 22,
-    paddingHorizontal: 36,
-    borderRadius: 35,
+    paddingVertical: Math.max(14, height * 0.018),
+    paddingHorizontal: Math.max(20, width * 0.05),
+    borderRadius: Math.max(25, width * 0.065),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    minHeight: Math.max(48, height * 0.06),
   },
   buttonText: {
     color: "white",
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 19,
-    letterSpacing: 0.8,
-    marginRight: 14,
+    fontSize: Math.max(15, Math.min(16, width * 0.04)),
+    letterSpacing: 0.5,
+    marginRight: 10,
   },
   arrowContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: Math.max(26, width * 0.065),
+    height: Math.max(26, width * 0.065),
+    borderRadius: Math.max(13, width * 0.0325),
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
     ...Platform.select({
       web: {
-        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.2)', { width: 0, height: 4 }, 1, 8),
+        boxShadow: shadowToBoxShadow('rgba(230, 138, 80, 0.15)', { width: 0, height: 2 }, 1, 4),
       },
       default: {
         shadowColor: '#E68A50',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 2,
       }
     }),
   },

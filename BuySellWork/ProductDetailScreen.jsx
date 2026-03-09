@@ -293,7 +293,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
         <View style={styles.headerSpacer} />
       </LinearGradient>
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Enhanced Image Carousel */}
         <View style={styles.imageContainer}>
           <ScrollView horizontal pagingEnabled style={styles.imageCarousel} showsHorizontalScrollIndicator={false}>

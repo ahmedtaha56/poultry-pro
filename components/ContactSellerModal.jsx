@@ -11,7 +11,10 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
-  Linking
+  Linking,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
@@ -67,9 +70,9 @@ const ContactSellerModal = ({ visible, onClose, isProfileOwner, sellerData, onUp
     } finally {
       setLoading(false);
     }
-};
+  };
 
-const handleContact = (method) => {
+  const handleContact = (method) => {
     if (method === 'phone' && sellerData?.phone) {
       Linking.openURL(`tel:${sellerData.phone}`);
     } else if (method === 'whatsapp') {
@@ -85,7 +88,7 @@ const handleContact = (method) => {
     } else {
       Alert.alert('Error', 'Contact information not available');
     }
-};
+  };
 
   const hasPhone = !!sellerData?.phone;
   const hasWhatsAppLink = !!sellerData?.whatsapp_link;
@@ -100,208 +103,221 @@ const handleContact = (method) => {
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.modalContent}>
-            {/* Modern Gradient Header with Glass Effect */}
-            <LinearGradient
-              colors={['#FF8C42', '#FF6B35', '#E85A4F']}
-              style={styles.modalHeader}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={styles.keyboardAvoidingView}
             >
-              <View style={styles.headerTopLine} />
-              <View style={styles.headerContent}>
-                <View style={styles.titleContainer}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons 
-                      name={isProfileOwner ? "settings-outline" : "chatbubbles-outline"} 
-                      size={22} 
-                      color="#FFF" 
-                    />
-                  </View>
-                  <Text style={styles.modalTitle}>
-                    {isProfileOwner ? 'Manage Contacts' : 'Connect with Seller'}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                  <View style={styles.closeButtonInner}>
-                    <Ionicons name="close" size={20} color="#FFF" />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-
-            {isProfileOwner ? (
-              // Profile owner view - Modern form design
-              <View style={styles.formContainer}>
-                <Text style={styles.sectionTitle}>Contact Information</Text>
-                <Text style={styles.sectionSubtitle}>
-                  Update your contact details to help buyers reach you
-                </Text>
-
-                <View style={styles.inputContainer}>
-                  <View style={styles.inputGroup}>
-                    <View style={styles.inputHeader}>
-                      <Ionicons name="call-outline" size={18} color="#E85A4F" />
-                      <Text style={styles.label}>Phone Number</Text>
-                    </View>
-                    <View style={styles.inputWrapper}>
-                      <TextInput
-                        style={styles.input}
-                        value={phone}
-                        onChangeText={setPhone}
-                        placeholder="Enter your phone number"
-                        keyboardType="phone-pad"
-                        placeholderTextColor="#A0A0A0"
-                      />
-                    </View>
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <View style={styles.inputHeader}>
-                      <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
-                      <Text style={styles.label}>WhatsApp Link</Text>
-                      <Text style={styles.optionalTag}>Optional</Text>
-                    </View>
-                    
-                    {/* Beautiful WhatsApp Example Container */}
-                    <View style={styles.exampleContainer}>
-                      <View style={styles.exampleHeader}>
-                        <Ionicons name="information-circle-outline" size={16} color="#25D366" />
-                        <Text style={styles.exampleTitle}>Format Example</Text>
+              <View style={styles.modalContent}>
+                {/* Modern Gradient Header with Glass Effect */}
+                <LinearGradient
+                  colors={['#FF8C42', '#FF6B35', '#E85A4F']}
+                  style={styles.modalHeader}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <View style={styles.headerTopLine} />
+                  <View style={styles.headerContent}>
+                    <View style={styles.titleContainer}>
+                      <View style={styles.iconContainer}>
+                        <Ionicons 
+                          name={isProfileOwner ? "settings-outline" : "chatbubbles-outline"} 
+                          size={22} 
+                          color="#FFF" 
+                        />
                       </View>
-                      <View style={styles.exampleBox}>
-                        <Text style={styles.exampleText}>https://wa.me/92xxxxxxxxxx</Text>
-                        <View style={styles.exampleNote}>
-                          <Text style={styles.exampleNoteText}>
-                            Replace 'xxxxxxxxxx' with your phone number (without +92)
-                          </Text>
+                      <Text style={styles.modalTitle}>
+                        {isProfileOwner ? 'Manage Contacts' : 'Connect with Seller'}
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                      <View style={styles.closeButtonInner}>
+                        <Ionicons name="close" size={20} color="#FFF" />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </LinearGradient>
+
+                {/* Scrollable Content */}
+                <ScrollView 
+                  style={styles.scrollView}
+                  contentContainerStyle={styles.scrollContent}
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  {isProfileOwner ? (
+                    // Profile owner view - Modern form design
+                    <View style={styles.formContainer}>
+                      <Text style={styles.sectionTitle}>Contact Information</Text>
+                      <Text style={styles.sectionSubtitle}>
+                        Update your contact details to help buyers reach you
+                      </Text>
+
+                      <View style={styles.inputContainer}>
+                        <View style={styles.inputGroup}>
+                          <View style={styles.inputHeader}>
+                            <Ionicons name="call-outline" size={18} color="#E85A4F" />
+                            <Text style={styles.label}>Phone Number</Text>
+                          </View>
+                          <View style={styles.inputWrapper}>
+                            <TextInput
+                              style={styles.input}
+                              value={phone}
+                              onChangeText={setPhone}
+                              placeholder="Enter your phone number"
+                              keyboardType="phone-pad"
+                              placeholderTextColor="#A0A0A0"
+                            />
+                          </View>
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                          <View style={styles.inputHeader}>
+                            <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
+                            <Text style={styles.label}>WhatsApp Link</Text>
+                            <Text style={styles.optionalTag}>Optional</Text>
+                          </View>
+                          
+                          {/* Beautiful WhatsApp Example Container */}
+                          <View style={styles.exampleContainer}>
+                            <View style={styles.exampleHeader}>
+                              <Ionicons name="information-circle-outline" size={16} color="#25D366" />
+                              <Text style={styles.exampleTitle}>Format Example</Text>
+                            </View>
+                            <View style={styles.exampleBox}>
+                              <Text style={styles.exampleText}>https://wa.me/92xxxxxxxxxx</Text>
+                              <View style={styles.exampleNote}>
+                                <Text style={styles.exampleNoteText}>
+                                  Replace 'xxxxxxxxxx' with your phone number (without +92)
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                          
+                          <View style={styles.inputWrapper}>
+                            <TextInput
+                              style={styles.input}
+                              value={whatsappLink}
+                              onChangeText={setWhatsappLink}
+                              placeholder="https://wa.me/92xxxxxxxxxx"
+                              keyboardType="url"
+                              placeholderTextColor="#A0A0A0"
+                            />
+                          </View>
                         </View>
                       </View>
-                    </View>
-                    
-                    <View style={styles.inputWrapper}>
-                      <TextInput
-                        style={styles.input}
-                        value={whatsappLink}
-                        onChangeText={setWhatsappLink}
-                        placeholder="https://wa.me/92xxxxxxxxxx"
-                        keyboardType="url"
-                        placeholderTextColor="#A0A0A0"
-                      />
-                    </View>
-                  </View>
-                </View>
 
-                <TouchableOpacity 
-                  style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-                  onPress={handleSave}
-                  disabled={loading}
-                  activeOpacity={0.8}
-                >
-                  <LinearGradient
-                    colors={loading ? ['#CCC', '#AAA'] : ['#E85A4F', '#FF6B35']}
-                    style={styles.saveButtonGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  >
-                    {loading ? (
-                      <View style={styles.loadingContainer}>
-                        <ActivityIndicator color="#FFF" size="small" />
-                        <Text style={styles.saveButtonText}>Updating...</Text>
-                      </View>
-                    ) : (
-                      <View style={styles.buttonContent}>
-                        <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" />
-                        <Text style={styles.saveButtonText}>Save Changes</Text>
-                      </View>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              // Visitor view - Modern contact options
-              <View style={styles.contactOptionsContainer}>
-                <Text style={styles.sectionTitle}>Choose Contact Method</Text>
-                <Text style={styles.sectionSubtitle}>
-                  Select how you'd like to get in touch
-                </Text>
-
-                {(!hasPhone && !hasWhatsAppLink) ? (
-                  // No contact information available - Beautiful UI
-                  <View style={styles.noContactContainer}>
-                    <View style={styles.noContactBackground}>
-                      <View style={styles.noContactIconWrapper}>
-                        <LinearGradient
-                          colors={['#FF6B6B', '#FF8E8E']}
-                          style={styles.noContactGradientIcon}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                        >
-                          <Ionicons name="person-circle-outline" size={32} color="#FFF" />
-                        </LinearGradient>
-                      </View>
-                      <View style={styles.noContactTextContainer}>
-                        <Text style={styles.noContactTitle}>No Contact Information</Text>
-                        <Text style={styles.noContactSubtitle}>
-                          This seller hasn't added their contact details yet
-                        </Text>
-                      </View>
-                      <View style={styles.noContactDecoration}>
-                        <View style={styles.decorationDot} />
-                        <View style={styles.decorationDot} />
-                        <View style={styles.decorationDot} />
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  // Contact options available
-                  <View style={styles.optionsGrid}>
-                    {hasPhone && (
-                      <TouchableOpacity
-                        style={styles.contactOption}
-                        onPress={() => handleContact('phone')}
-                        activeOpacity={0.7}
+                      <TouchableOpacity 
+                        style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+                        onPress={handleSave}
+                        disabled={loading}
+                        activeOpacity={0.8}
                       >
                         <LinearGradient
-                          colors={['#4A90E2', '#357ABD']}
-                          style={styles.contactOptionGradient}
+                          colors={loading ? ['#CCC', '#AAA'] : ['#E85A4F', '#FF6B35']}
+                          style={styles.saveButtonGradient}
                           start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
+                          end={{ x: 1, y: 0 }}
                         >
-                          <View style={styles.contactIconContainer}>
-                            <Ionicons name="call" size={26} color="#FFF" />
-                          </View>
-                          <Text style={styles.contactOptionTitle}>Phone Call</Text>
-                          <Text style={styles.contactOptionSubtitle}>Direct call</Text>
+                          {loading ? (
+                            <View style={styles.loadingContainer}>
+                              <ActivityIndicator color="#FFF" size="small" />
+                              <Text style={styles.saveButtonText}>Updating...</Text>
+                            </View>
+                          ) : (
+                            <View style={styles.buttonContent}>
+                              <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" />
+                              <Text style={styles.saveButtonText}>Save Changes</Text>
+                            </View>
+                          )}
                         </LinearGradient>
                       </TouchableOpacity>
-                    )}
+                    </View>
+                  ) : (
+                    // Visitor view - Modern contact options
+                    <View style={styles.contactOptionsContainer}>
+                      <Text style={styles.sectionTitle}>Choose Contact Method</Text>
+                      <Text style={styles.sectionSubtitle}>
+                        Select how you'd like to get in touch
+                      </Text>
 
-                    {hasWhatsAppLink && (
-                      <TouchableOpacity
-                        style={styles.contactOption}
-                        onPress={() => handleContact('whatsapp')}
-                        activeOpacity={0.7}
-                      >
-                        <LinearGradient
-                          colors={['#25D366', '#1EAE52']}
-                          style={styles.contactOptionGradient}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                        >
-                          <View style={styles.contactIconContainer}>
-                            <Ionicons name="logo-whatsapp" size={26} color="#FFF" />
+                      {(!hasPhone && !hasWhatsAppLink) ? (
+                        // No contact information available - Beautiful UI
+                        <View style={styles.noContactContainer}>
+                          <View style={styles.noContactBackground}>
+                            <View style={styles.noContactIconWrapper}>
+                              <LinearGradient
+                                colors={['#FF6B6B', '#FF8E8E']}
+                                style={styles.noContactGradientIcon}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                              >
+                                <Ionicons name="person-circle-outline" size={32} color="#FFF" />
+                              </LinearGradient>
+                            </View>
+                            <View style={styles.noContactTextContainer}>
+                              <Text style={styles.noContactTitle}>No Contact Information</Text>
+                              <Text style={styles.noContactSubtitle}>
+                                This seller hasn't added their contact details yet
+                              </Text>
+                            </View>
+                            <View style={styles.noContactDecoration}>
+                              <View style={styles.decorationDot} />
+                              <View style={styles.decorationDot} />
+                              <View style={styles.decorationDot} />
+                            </View>
                           </View>
-                          <Text style={styles.contactOptionTitle}>WhatsApp</Text>
-                          <Text style={styles.contactOptionSubtitle}>Chat now</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                )}
+                        </View>
+                      ) : (
+                        // Contact options available
+                        <View style={styles.optionsGrid}>
+                          {hasPhone && (
+                            <TouchableOpacity
+                              style={styles.contactOption}
+                              onPress={() => handleContact('phone')}
+                              activeOpacity={0.7}
+                            >
+                              <LinearGradient
+                                colors={['#4A90E2', '#357ABD']}
+                                style={styles.contactOptionGradient}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                              >
+                                <View style={styles.contactIconContainer}>
+                                  <Ionicons name="call" size={26} color="#FFF" />
+                                </View>
+                                <Text style={styles.contactOptionTitle}>Phone Call</Text>
+                                <Text style={styles.contactOptionSubtitle}>Direct call</Text>
+                              </LinearGradient>
+                            </TouchableOpacity>
+                          )}
+
+                          {hasWhatsAppLink && (
+                            <TouchableOpacity
+                              style={styles.contactOption}
+                              onPress={() => handleContact('whatsapp')}
+                              activeOpacity={0.7}
+                            >
+                              <LinearGradient
+                                colors={['#25D366', '#1EAE52']}
+                                style={styles.contactOptionGradient}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                              >
+                                <View style={styles.contactIconContainer}>
+                                  <Ionicons name="logo-whatsapp" size={26} color="#FFF" />
+                                </View>
+                                <Text style={styles.contactOptionTitle}>WhatsApp</Text>
+                                <Text style={styles.contactOptionSubtitle}>Chat now</Text>
+                              </LinearGradient>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </ScrollView>
               </View>
-            )}
-          </View>
+            </KeyboardAvoidingView>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
@@ -315,12 +331,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
+  keyboardAvoidingView: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
   modalBackground: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  // ScrollView styles
+  scrollView: {
+    flex: 1,
+    maxHeight: '80%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   // Beautiful No Contact Information Styles
   noContactContainer: {
@@ -401,7 +430,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     minHeight: 350,
-    maxHeight: '80%',
+    maxHeight: '90%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -410,6 +439,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 20,
+    flex: 1,
   },
   modalHeader: {
     borderTopLeftRadius: 24,

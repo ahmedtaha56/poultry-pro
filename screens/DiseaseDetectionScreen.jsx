@@ -7,6 +7,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
+// Disease Database with Prevention & Medicines
+const DISEASE_DATABASE = {
+  'Coccidiosis': {
+    prevention: 'Essential Prevention Strategies:\n\n🛡️ Biosecurity Measures:\n- Maintain clean and dry litter\n- Protect them from mosquitoes\n- Avoid overcrowding in poultry houses\n- Regularly clean and disinfect feeders and waterers\n\n💊 Vaccination Program:\n- Use live vaccines for young chicks\n- Follow proper vaccination schedules\n- Monitor vaccine efficacy\n\n🧼 Hygiene Practices:\n- Provide clean drinking water\n- Remove wet litter promptly\n- Prevent access to contaminated areas',
+    remedies: 'Management and Treatment Options:\n\n⚠️ Immediate Actions:\n- Isolate infected birds\n- Provide supportive care (electrolytes, vitamins)\n- Notify a veterinarian for proper diagnosis\n\n💊 Medicines:\n- Use medicines like Amprolium, Sulfadimethoxine, or Toltrazuril (Veterinary Store)\n- OR\n- For 1-2 months old chickens: divide one Disprin tablet into 8 parts and give one part with half Velosef capsule daily for 8 days\n- For 2-6 months old chickens: divide one Disprin tablet into 4 parts and give one part with half Velosef capsule daily for 8 days\n\n🌿 Natural Supportive Measures:\n- Add apple cider vinegar to drinking water (2 caps in 1 liter water)\n- Provide boiled egg daily or protein-based diets like dry worms\n- Provide a balanced diet to boost immunity'
+  },
+  'New Castle Disease': {
+    prevention: 'Essential Prevention Strategies:\n\n🛡️ Biosecurity Measures:\n- Strict quarantine protocols\n- Controlled farm access\n- Keep your eating and drinking utensils neat and clean\n- Regular disinfection routines\n\n💉 Vaccination Program:\n- Implement routine vaccination\n- Maintain proper vaccine storage\n- Follow recommended schedules\n\n🧼 Hygiene Practices:\n- Daily cleaning of facilities\n- Proper waste management\n- Regular equipment sterilization',
+    remedies: 'Management and Treatment Options:\n\n⚠️ Immediate Actions:\n- Isolate infected birds immediately\n- Currently, there is no proper medicine for this because it is extremely dangerous. However, if this condition still occurs, use this remedy: Neurobion and Methycobal with Dexamethasone injection. Mix them together and inject 1cc for adult chickens. For smaller ones (around 6 months old), inject half cc.\n- Notify local veterinary authorities\n\n💊 Supportive Care:\n- Provide electrolyte solutions\n- Maintain optimal temperature\n- Ensure proper ventilation\n\n🚨 Critical Consideration:\nDue to the extremely high mortality rate (99%) and rapid spread, culling of infected birds is often the most effective containment strategy to protect the remaining flock.'
+  },
+  'Salmonella': {
+    prevention: 'Prevention Strategies:\n\n🛡️ Biosecurity:\n- Maintain proper hygiene\n- Avoid contaminated feed and water\n- Regularly disinfect the coop\n\n🧤 Personal Protection:\n- Use gloves when handling birds\n- Wash hands thoroughly after contact',
+    remedies: 'Management and Treatment:\n\n💊 Antibiotics:\n- Use antibiotics like Enrofloxacin or Amoxicillin\n- Give one Amoxil tablet if the bird is over 6 months old, otherwise give half a tablet\n\n🌿 Supportive Care:\n- Provide electrolytes in drinking water\n- Ensure proper nutrition like protein and vitamins\n\n⚠️ Important:\nEarly diagnosis and treatment are crucial.'
+  }
+};
+
 export default function DiseaseDetectionScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
@@ -17,6 +33,7 @@ export default function DiseaseDetectionScreen() {
   const [confidence, setConfidence] = useState(null);
   const [tips, setTips] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [expandedTab, setExpandedTab] = useState('prevention'); // prevention or remedies
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -36,6 +53,7 @@ export default function DiseaseDetectionScreen() {
       setPrediction(null);
       setConfidence(null);
       setTips(null);
+      setExpandedTab('prevention');
     }
   };
 
@@ -44,6 +62,7 @@ export default function DiseaseDetectionScreen() {
     setPrediction(null);
     setConfidence(null);
     setTips(null);
+    setExpandedTab('prevention');
   };
 
   const scrollToResults = () => {
@@ -93,6 +112,7 @@ export default function DiseaseDetectionScreen() {
       setConfidence(data.confidence);
       setTips(data.tips);
       setLoading(false);
+      setExpandedTab('prevention');
       
       // Auto scroll to results
       scrollToResults();
@@ -100,6 +120,13 @@ export default function DiseaseDetectionScreen() {
       setLoading(false);
       Alert.alert('Error', `Something went wrong: ${error.message}`);
     }
+  };
+
+  const getDiseaseDetails = () => {
+    if (prediction && DISEASE_DATABASE[prediction]) {
+      return DISEASE_DATABASE[prediction];
+    }
+    return null;
   };
 
   return (
@@ -203,13 +230,51 @@ export default function DiseaseDetectionScreen() {
                 </View>
               )}
 
+              {/* Tab Switcher for Prevention & Remedies */}
+              {getDiseaseDetails() && (
+                <>
+                  <View style={styles.tabContainer}>
+                    <TouchableOpacity 
+                      style={[styles.tab, expandedTab === 'prevention' && styles.tabActive]}
+                      onPress={() => setExpandedTab('prevention')}
+                    >
+                      <Text style={[styles.tabText, expandedTab === 'prevention' && styles.tabTextActive]}>
+                        🛡️ Prevention
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.tab, expandedTab === 'remedies' && styles.tabActive]}
+                      onPress={() => setExpandedTab('remedies')}
+                    >
+                      <Text style={[styles.tabText, expandedTab === 'remedies' && styles.tabTextActive]}>
+                        💊 Remedies
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Prevention Content */}
+                  {expandedTab === 'prevention' && (
+                    <View style={styles.detailsCard}>
+                      <Text style={styles.detailsText}>{getDiseaseDetails().prevention}</Text>
+                    </View>
+                  )}
+
+                  {/* Remedies Content */}
+                  {expandedTab === 'remedies' && (
+                    <View style={styles.detailsCard}>
+                      <Text style={styles.detailsText}>{getDiseaseDetails().remedies}</Text>
+                    </View>
+                  )}
+                </>
+              )}
+
               {tips && (
                 <View style={styles.tipsSection}>
                   <View style={styles.tipsHeader}>
                     <View style={styles.tipsIconContainer}>
                       <Text style={styles.tipsIcon}>💡</Text>
                     </View>
-                    <Text style={styles.tipsTitle}>RECOMMENDATIONS</Text>
+                    <Text style={styles.tipsTitle}>QUICK NOTES</Text>
                   </View>
                   <View style={styles.tipsContent}>
                     <Text style={styles.tipsText}>{tips}</Text>
@@ -343,16 +408,16 @@ export default function DiseaseDetectionScreen() {
 const styles = StyleSheet.create({
   contentSafeArea: {
     flex: 1,
-    backgroundColor: '#F5F7FA', // This color will be visible in the bottom safe area
+    backgroundColor: '#F5F7FA',
   },
   scrollView: {
     flex: 1,
   },
   container: {
-    paddingBottom: 50, // Reduced padding as SafeAreaView handles bottom space
+    paddingBottom: 50,
   },
   header: {
-    paddingTop: 20, // Adjusted from 45 since SafeAreaView handles top inset
+    paddingTop: 20,
     paddingBottom: 25,
     borderBottomLeftRadius: 35,
     borderBottomRightRadius: 35,
@@ -368,7 +433,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 0, // Removed extra padding, handled by header paddingTop
+    paddingTop: 0,
     marginBottom: 20,
   },
   backButton: {
@@ -814,12 +879,61 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 7,
   },
-  tipsSection: {
-    padding: 20,
+  tabContainer: {
+    flexDirection: 'row',
+    marginBottom: 24,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 16,
+    padding: 6,
+    gap: 8,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  tabActive: {
+    backgroundColor: '#fff',
+    shadowColor: '#E68A50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#95A5A6',
+    letterSpacing: 0.3,
+  },
+  tabTextActive: {
+    color: '#E68A50',
+    fontWeight: '700',
+  },
+  detailsCard: {
     backgroundColor: '#FFF9F5',
+    padding: 20,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: 'rgba(230, 138, 80, 0.2)',
+    marginBottom: 24,
+  },
+  detailsText: {
+    fontSize: 14,
+    color: '#2C3E50',
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  tipsSection: {
+    padding: 20,
+    backgroundColor: '#E8F5E9',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(76, 175, 80, 0.2)',
   },
   tipsHeader: {
     flexDirection: 'row',
@@ -831,7 +945,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#E68A50',
+    backgroundColor: '#4CAF50',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -840,7 +954,7 @@ const styles = StyleSheet.create({
   },
   tipsTitle: {
     fontSize: 12,
-    color: '#7F8C8D',
+    color: '#2E7D32',
     fontWeight: '700',
     letterSpacing: 1.5,
   },
@@ -849,7 +963,7 @@ const styles = StyleSheet.create({
   },
   tipsText: {
     fontSize: 15,
-    color: '#2C3E50',
+    color: '#1B5E20',
     lineHeight: 24,
     fontWeight: '500',
   },
@@ -857,9 +971,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-
-mere project fyp app ki mai nai diagrams banani hai jis k liye apnai muje un diagrams ka plant uml code dea hai wo pehle ye analyze karo k mera app ka flow kiya hai 
-mera app jaab open hota hai toh main screen yani obbording screen atai hai jismai get started ka button hai usmper clack karna sai sigup page per lai jata hai aur signup page per login ka option b hai jismai login per click karnai sai login screen mai lai jata hai login yansuccesfully signup k baad wo agai home screen per lai jata hai bagair login ya signup k wo proceed nii karta agai jahan per saab modules k oprion hai latest news, poultry farming guide, disease information and care, Desease detection, chatbot, buy/sell market. phir inmai kisi b option per click karo toh wo us module per lai jata hai 
-Click on latest news -> Latest news screen open hoti hai jahan per latest news show hoti hai aur is screen mai header mai back arrow ata hai jahan sai wapis jobcategory screen mai ajata hai 
-click on buy/sell market -> is per click karnai sai buysell market opennhoti hai jahan per redirect home screen mai hota hai like buy/sell market option per click kiya toh home screen open hoti hai market ki jahan per listings show hoti hai products ki aur neechai bottom navigation hai jahan per home screen, sell screen, profile screen ka options hai. home screen per kisi b product listing per click krnai per us product ki complete details ajati hai aur sath mai seller ka cntact info b ata hai jahan per wo seller ka whatsapp number show hota hai aur us number per click karnai sai wo us seller ki profile mai chala jata hai. home screen mai filter b kar sakta hai by ratings k basis per, search user ka options b hai jahan user ko uskai username ki bina per search karta hai, home screen mai categories k option b hai live,equipment, feed, eggs sell screen sai user apna products ko list karta hai. 
-profilescreen mai user apni profile mai ajata hai jahan per wo apni ratings, total listings dekh sakta hai aur apnai posts b jo usnai list kiya hai au un post ko edit aur delete b kar sakat hai aur  edit profile, dashboard, add product, your contacts ka options b hai buysell mai home screen ki header mai back janai ka option b hai jahan sai wo back ja sakta hai 

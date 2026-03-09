@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { View, StyleSheet, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import HomeScreen from './HomeScreen';
 import SellScreen from './SellScreen';
 import ProfileScreen from './ProfileScreen';
@@ -102,124 +103,116 @@ const ProfileStack = () => {
 
 const BuySellNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginBottom: 8,
-          marginTop: 4,
-          textTransform: 'capitalize',
-        },
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          height: Platform.OS === 'ios' ? 85 : 75,
-          borderTopLeftRadius: 30,
-          borderTopRightRadius: 30,
-          position: 'absolute',
-          shadowColor: '#E68A50',
-          shadowOpacity: 0.15,
-          shadowRadius: 15,
-          shadowOffset: {
-            width: 0,
-            height: -5,
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarShowLabel: false, // Remove labels
+          tabBarStyle: {
+            backgroundColor: '#fff',
+            height: Platform.OS === 'ios' ? 85 : 75,
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            position: 'absolute',
+            shadowColor: '#E68A50',
+            shadowOpacity: 0.15,
+            shadowRadius: 15,
+            shadowOffset: {
+              width: 0,
+              height: -5,
+            },
+            elevation: 20,
+            borderTopWidth: 0,
+            paddingTop: 8,
+            paddingBottom: Platform.OS === 'ios' ? 25 : 8,
+            paddingHorizontal: 20,
           },
-          elevation: 20,
-          borderTopWidth: 0,
-          paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 8,
-          paddingHorizontal: 20,
-        },
-        tabBarItemStyle: {
-          paddingVertical: 5,
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          if (route.name === 'Home') {
-            return (
-              <CustomTabIcon 
-                IconComponent={Feather}
-                name="home"
-                focused={focused}
-                color={color}
-                size={size}
-              />
-            );
-          } else if (route.name === 'Sell') {
-            return (
-              <CustomTabIcon 
-                IconComponent={MaterialIcons}
-                name="add-box"
-                focused={focused}
-                color={color}
-                size={size}
-              />
-            );
-          } else if (route.name === 'Profile') {
-            return (
-              <CustomTabIcon 
-                IconComponent={Ionicons}
-                name="person-circle-outline"
-                focused={focused}
-                color={color}
-                size={size}
-              />
-            );
-          }
-        },
-        tabBarActiveTintColor: '#E68A50',
-        tabBarInactiveTintColor: '#8B8B8B',
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen}
-        options={{
-          tabBarLabel: 'Home',
-        }}
-        listeners={{
-          focus: () => setLastFocusedTab('Home')
-        }}
-      />
-      <Tab.Screen 
-        name="Sell" 
-        component={SellStack}
-        options={{
-          unmountOnBlur: true,
-          tabBarLabel: 'Sell',
-        }}
-        listeners={{
-          focus: () => setLastFocusedTab('Sell')
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStack}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            // Navigate directly to Profile stack root screen
-            navigation.navigate('Profile', {
-              screen: 'ProfileMain',
-              params: {
-                userId: null,
-                forceViewMode: 'owner',
-                fromTab: true,
-              },
-            });
+          tabBarItemStyle: {
+            paddingVertical: 5,
           },
-          focus: () => setLastFocusedTab('Profile')
+          tabBarIcon: ({ focused, color, size }) => {
+            if (route.name === 'Home') {
+              return (
+                <CustomTabIcon 
+                  IconComponent={Feather}
+                  name="home"
+                  focused={focused}
+                  color={color}
+                  size={size}
+                />
+              );
+            } else if (route.name === 'Sell') {
+              return (
+                <CustomTabIcon 
+                  IconComponent={MaterialIcons}
+                  name="add-box"
+                  focused={focused}
+                  color={color}
+                  size={size}
+                />
+              );
+            } else if (route.name === 'Profile') {
+              return (
+                <CustomTabIcon 
+                  IconComponent={Ionicons}
+                  name="person-circle-outline"
+                  focused={focused}
+                  color={color}
+                  size={size}
+                />
+              );
+            }
+          },
+          tabBarActiveTintColor: '#E68A50',
+          tabBarInactiveTintColor: '#8B8B8B',
+          headerShown: false,
         })}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen 
+          name="Home" 
+          component={HomeScreen}
+          listeners={{
+            focus: () => setLastFocusedTab('Home')
+          }}
+        />
+        <Tab.Screen 
+          name="Sell" 
+          component={SellStack}
+          options={{
+            unmountOnBlur: true,
+          }}
+          listeners={{
+            focus: () => setLastFocusedTab('Sell')
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              // Navigate directly to Profile stack root screen
+              navigation.navigate('Profile', {
+                screen: 'ProfileMain',
+                params: {
+                  userId: null,
+                  forceViewMode: 'owner',
+                  fromTab: true,
+                },
+              });
+            },
+            focus: () => setLastFocusedTab('Profile')
+          })}
+        />
+      </Tab.Navigator>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   iconContainer: {
     width: 45,
     height: 35,

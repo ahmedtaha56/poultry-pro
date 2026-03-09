@@ -10,6 +10,8 @@ import GuideDetail from "../screens/GuideDetailScreen";
 import ArticleDetailScreen from "../screens/ArticleDetailScreen";
 import BuySellNavigator from "../BuySellWork/BuySellNavigator";
 import NewsModule from '../screens/NewsModule';
+import DiseaseDetectionScreen from '../screens/DiseaseDetectionScreen';
+import ChatbotScreen from '../screens/ChatbotScreen';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +36,8 @@ const RootNavigator = () => {
       <Stack.Screen name="Guide" component={GuideScreen} />
       <Stack.Screen name="GuideDetail" component={GuideDetail} />
       <Stack.Screen name="LatestNews" component={NewsModule}/>
+      <Stack.Screen name="ChatbotScreen" component={ChatbotScreen} />
+      <Stack.Screen name="DiseaseDetectionScreen" component={DiseaseDetectionScreen} />
     </Stack.Navigator>
   );
 }

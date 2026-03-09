@@ -19,7 +19,6 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
-  Share,
   RefreshControl,
   ActivityIndicator,
   Alert,
@@ -282,9 +281,6 @@ const ProfileScreen = React.memo(({ navigation, route }) => {
     }
   }, [isCorrectProfile, isOwnProfile, seller?.id, currentUser?.id]);
 
-  // Removed manual transition effect to avoid conflicting loaders
-
-  // Removed duplicate initial load effect to avoid double fetch and flicker
 
   // Handle focus effect for navigation: simplified, single fetch per target user
   useFocusEffect(
@@ -323,19 +319,6 @@ const ProfileScreen = React.memo(({ navigation, route }) => {
       return () => { isActive = false; };
     }, [route.params?.userId, route.params?.refresh, currentUser?.id, seller?.id, dispatch, navigation])
   );
-
-  const handleShareProfile = async () => {
-    try {
-      if (!seller) return;
-      await Share.share({
-        message: `Check out ${seller.full_name}'s poultry profile`,
-        url: 'https://your-app-link.com/profile',
-        title: `Share ${seller.full_name}'s Profile`
-      });
-    } catch (error) {
-      console.log('Error sharing profile:', error.message);
-    }
-  };
 
   const renderCategory = ({ item }) => (
     <TouchableOpacity
@@ -382,17 +365,17 @@ const ProfileScreen = React.memo(({ navigation, route }) => {
         });
       }}
     >
-              <View style={styles.productImageContainer}>
-          <Image
-            source={
-              item.product_images?.[0]?.image_url
-                ? { uri: item.product_images[0].image_url }
-                : require('../assets/placeholder.jpg')
-            }
-            style={styles.productImage}
-            resizeMode="cover"
-          />
-        </View>
+      <View style={styles.productImageContainer}>
+        <Image
+          source={
+            item.product_images?.[0]?.image_url
+              ? { uri: item.product_images[0].image_url }
+              : require('../assets/placeholder.jpg')
+          }
+          style={styles.productImage}
+          resizeMode="cover"
+        />
+      </View>
       <View style={styles.productInfo}>
         <Text style={styles.productTitle} numberOfLines={1}>{item.product_name}</Text>
         <Text style={styles.productPrice}>₹{item.price}</Text>
@@ -608,14 +591,14 @@ const ProfileScreen = React.memo(({ navigation, route }) => {
             <View style={styles.profileBackground} />
             <View style={styles.profileContent}>
               <View style={styles.profileHeader}>
-                                  <View style={styles.profileImageContainer}>
-                    <Image
-                      source={{ uri: seller.profile_image }}
-                      style={styles.profileImage}
-                      defaultSource={require('../assets/profile-placeholder.png')}
-                      resizeMode="cover"
-                    />
-                  </View>
+                <View style={styles.profileImageContainer}>
+                  <Image
+                    source={{ uri: seller.profile_image }}
+                    style={styles.profileImage}
+                    defaultSource={require('../assets/profile-placeholder.png')}
+                    resizeMode="cover"
+                  />
+                </View>
 
                 <View style={styles.statsContainer}>
                   <View style={styles.statItem}>
@@ -711,15 +694,6 @@ const ProfileScreen = React.memo(({ navigation, route }) => {
                 <MaterialCommunityIcons name="view-dashboard" size={24} color="white" />
               </View>
               <Text style={styles.quickActionText}>Dashboard</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.quickAction}
-              onPress={handleShareProfile}
-            >
-              <View style={[styles.quickActionIcon, { backgroundColor: '#3498DB' }]}>
-                <Feather name="share-2" size={24} color="white" />
-              </View>
-              <Text style={styles.quickActionText}>Share Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.quickAction}
@@ -1245,6 +1219,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ECF0F1',
     paddingTop: 12,
+    flexWrap: 'wrap',
+    gap: 5,
   },
   editButton: {
     flexDirection: 'row',
@@ -1442,12 +1418,6 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     justifyContent: 'center',
     flex: 1,
-  },
-  skeletonText: {
-    height: 20,
-    backgroundColor: '#E1E9EE',
-    borderRadius: 4,
-    marginBottom: 8,
   },
   skeletonStats: {
     flexDirection: 'row',

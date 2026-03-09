@@ -22,7 +22,7 @@ import FeedbackModal from "../components/FeedbackModal";
 const { width, height } = Dimensions.get("window");
 const COLORS = {
   primary: "#E68A50",
-  primaryLight: "#F4A261", 
+  primaryLight: "#F4A261",
   primaryDark: "#D67635",
   secondary: "#FFF8F3",
   accent: "#FF6B6B",
@@ -47,47 +47,47 @@ const scaleVertical = (size) => size * (height / 812);
 const scaleHorizontal = (size) => size * (width / 375);
 
 const categories = [
-  { 
-    name: "Buy/Sell Chickens", 
-    icon: "storefront-outline", 
+  {
+    name: "Buy/Sell Chickens",
+    icon: "storefront-outline",
     color: "#10B981",
     bgGradient: ["#10B981", "#34D399"],
-    description: "Trade poultry" 
+    description: "Trade poultry"
   },
-  { 
-    name: "Chicken Diseases & Care", 
-    icon: "medical-outline", 
+  {
+    name: "Chicken Diseases & Care",
+    icon: "medical-outline",
     color: "#EF4444",
     bgGradient: ["#EF4444", "#F87171"],
-    description: "Health & wellness" 
+    description: "Health & wellness"
   },
-  { 
-    name: "Poultry Farming Guide", 
-    icon: "library-outline", 
+  {
+    name: "Poultry Farming Guide",
+    icon: "library-outline",
     color: "#8B5CF6",
     bgGradient: ["#8B5CF6", "#A78BFA"],
-    description: "Learn farming" 
+    description: "Learn farming"
   },
-  { 
-    name: "Latest News", 
-    icon: "newspaper-outline", 
+  {
+    name: "Latest News",
+    icon: "newspaper-outline",
     color: "#F59E0B",
     bgGradient: ["#F59E0B", "#FBBF24"],
-    description: "Stay updated" 
+    description: "Stay updated"
   },
-  { 
-    name: "Talk with Chatbot", 
-    icon: "chatbubbles-outline", 
+  {
+    name: "Talk with Chatbot",
+    icon: "chatbubbles-outline",
     color: "#06B6D4",
     bgGradient: ["#06B6D4", "#22D3EE"],
-    description: "AI assistance" 
+    description: "AI assistance"
   },
-  { 
-    name: "Monitor Chickens Health", 
-    icon: "pulse-outline", 
+  {
+    name: "Monitor Chickens Health",
+    icon: "pulse-outline",
     color: "#FF6B35",
     bgGradient: ["#FF6B35", "#FF8F65"],
-    description: "Health monitoring" 
+    description: "Health monitoring"
   },
 ];
 
@@ -199,16 +199,16 @@ const CategoryItem = React.memo(({ category, isSelected, onPress, index, isTable
         style={styles.categoryContainer}
       >
         {/* Glow Effect */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.glowContainer,
             {
               opacity: glowOpacity,
               backgroundColor: category.color,
             }
-          ]} 
+          ]}
         />
-        
+
         <LinearGradient
           colors={
             isSelected
@@ -248,14 +248,14 @@ const CategoryItem = React.memo(({ category, isSelected, onPress, index, isTable
                 styles.iconInnerGlow,
                 { backgroundColor: `${category.color}${isSelected ? '40' : '20'}` }
               ]} />
-              
+
               <Ionicons
                 name={category.icon}
                 size={scaleFont(36)}
                 color={isSelected ? COLORS.white : category.color}
                 style={styles.iconStyle}
               />
-              
+
               {/* Icon badge */}
               {isSelected && (
                 <View style={styles.iconBadge}>
@@ -311,7 +311,7 @@ export default function JobCategoryScreen() {
   const [isErrorModalVisible, setErrorModalVisible] = useState(false);
   const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
   const navigation = useNavigation();
-  
+
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const titleScale = useRef(new Animated.Value(0.8)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -381,8 +381,8 @@ export default function JobCategoryScreen() {
         "Chicken Diseases & Care": "Diseases",
         "Poultry Farming Guide": "Guide",
         "Latest News": "LatestNews",
-        "Talk with Chatbot": "ChatBot",
-        "Monitor Chickens Health": "HealthMonitor"
+        "Talk with Chatbot": "ChatbotScreen",
+        "Monitor Chickens Health": "DiseaseDetectionScreen"
       };
 
       if (screenMap[category.name]) {
@@ -396,96 +396,99 @@ export default function JobCategoryScreen() {
     }
   };
 
+  // Pura return statement replace karo:
+
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} translucent />
-      <View style={styles.container}>
-        {/* Redesigned Professional Header */}
+
+      {/* Sirf header ke liye SafeAreaView */}
+      <SafeAreaView edges={['top']} style={{ backgroundColor: COLORS.primary }}>
         <LinearGradient
-          colors={[COLORS.primary, COLORS.primaryLight]}
+          colors={[COLORS.primary, COLORS.primaryLight, COLORS.primaryDark]}
           style={styles.headerGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          locations={[0, 0.5, 1]}
         >
-          <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-            <Animated.View 
-              style={[
-                styles.headerContent,
-                { opacity: headerOpacity }
-              ]}
-            >
-              {/* Top Navigation Row */}
-              <View style={styles.headerTopRow}>
-                <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-                  <TouchableOpacity 
-                    onPress={handleBackPress} 
-                    style={styles.modernBackButton}
-                    activeOpacity={0.8}
-                  >
-                    <View style={styles.backButtonContent}>
-                      <Feather 
-                        name="arrow-left" 
-                        size={scaleFont(20)} 
-                        color={COLORS.white}
-                        strokeWidth={2.5}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                </Animated.View>
-
-                <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-                  <TouchableOpacity 
-                    onPress={handleSignupPress} 
-                    style={styles.signupButton}
-                    activeOpacity={0.8}
-                  >
-                    <View style={styles.signupContent}>
-                      <Ionicons 
-                        name="person-add-outline" 
-                        size={scaleFont(16)} 
-                        color={COLORS.white}
-                      />
-                      <Text style={styles.signupText}>Sign Up</Text>
-                    </View>
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-
-              {/* Compact Title Section */}
-              <Animated.View 
-                style={[
-                  styles.headerTitleSection,
-                  { transform: [{ scale: titleScale }] }
-                ]}
-              >
-                <View style={styles.compactTitleContainer}>
-                  <View style={styles.compactLogoContainer}>
-                    <Ionicons 
-                      name="leaf-outline" 
-                      size={scaleFont(24)} 
-                      color={COLORS.white} 
+          <Animated.View
+            style={[
+              styles.headerContent,
+              { opacity: headerOpacity }
+            ]}
+          >
+            {/* Top Navigation Row with Perfect Alignment */}
+            <View style={styles.headerTopRow}>
+              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+                <TouchableOpacity
+                  onPress={handleBackPress}
+                  style={styles.modernBackButton}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.backButtonContent}>
+                    <Feather
+                      name="arrow-left"
+                      size={scaleFont(22)}
+                      color={COLORS.white}
+                      strokeWidth={2.5}
                     />
                   </View>
-                  <Text style={styles.compactHeaderTitle}>Poultry Pro</Text>
-                </View>
+                  <View style={styles.buttonShine} />
+                </TouchableOpacity>
               </Animated.View>
-            </Animated.View>
-          </SafeAreaView>
-        </LinearGradient>
 
-        {/* Content Section */}
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+                <TouchableOpacity
+                  onPress={handleSignupPress}
+                  style={styles.modernSignupButton}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.signupContent}>
+                    <Ionicons
+                      name="person-add"
+                      size={scaleFont(18)}
+                      color={COLORS.white}
+                    />
+                    <Text style={styles.signupText}>Sign Up</Text>
+                  </View>
+                  <View style={styles.buttonShine} />
+                </TouchableOpacity>
+              </Animated.View>
+            </View>
+
+            {/* Beautiful Subtitle */}
+            <View style={styles.subtitleContainer}>
+              <Text style={styles.headerSubtitle}>Poultry Pro</Text>
+              <View style={styles.subtitleUnderline} />
+            </View>
+          </Animated.View>
+        </LinearGradient>
+      </SafeAreaView>
+
+      {/* ScrollView saath SafeAreaView - IMPORTANT */}
+      <SafeAreaView edges={['bottom']} style={styles.container}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}
           style={styles.scrollView}
+          scrollEnabled={true}
+          bounces={true}
+          overScrollMode="always"
+          decelerationRate="normal"
         >
-          {/* Welcome Banner */}
+          {/* Enhanced Welcome Banner */}
           <View style={styles.welcomeBanner}>
             <LinearGradient
-              colors={['rgba(230, 138, 80, 0.1)', 'rgba(244, 162, 97, 0.05)']}
+              colors={['rgba(230, 138, 80, 0.15)', 'rgba(244, 162, 97, 0.08)', 'rgba(230, 138, 80, 0.05)']}
               style={styles.bannerGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <Text style={styles.bannerText}>Choose your farming journey</Text>
+              <View style={styles.bannerContent}>
+                <Ionicons name="sparkles" size={scaleFont(20)} color={COLORS.primary} />
+                <Text style={styles.bannerText}>Explore farming categories below</Text>
+                <Ionicons name="sparkles" size={scaleFont(20)} color={COLORS.primary} />
+              </View>
             </LinearGradient>
           </View>
 
@@ -502,9 +505,9 @@ export default function JobCategoryScreen() {
             ))}
           </View>
 
-          {/* Beautiful Feedback Button */}
+          {/* Enhanced Feedback Button */}
           <View style={styles.feedbackSection}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleFeedbackPress}
               style={styles.feedbackButton}
               activeOpacity={0.9}
@@ -518,20 +521,21 @@ export default function JobCategoryScreen() {
               >
                 <View style={styles.feedbackContent}>
                   <View style={styles.feedbackIconContainer}>
-                    <Ionicons 
-                      name="chatbox-ellipses-outline" 
-                      size={scaleFont(24)} 
+                    <Ionicons
+                      name="chatbox-ellipses"
+                      size={scaleFont(26)}
                       color={COLORS.white}
                     />
+                    <View style={styles.feedbackIconGlow} />
                   </View>
                   <View style={styles.feedbackTextContainer}>
                     <Text style={styles.feedbackTitle}>Share Your Feedback</Text>
                     <Text style={styles.feedbackSubtitle}>Help us improve your farming experience</Text>
                   </View>
                   <View style={styles.feedbackArrow}>
-                    <Ionicons 
-                      name="arrow-forward" 
-                      size={scaleFont(20)} 
+                    <Ionicons
+                      name="arrow-forward"
+                      size={scaleFont(22)}
                       color={COLORS.white}
                     />
                   </View>
@@ -539,72 +543,62 @@ export default function JobCategoryScreen() {
               </LinearGradient>
             </TouchableOpacity>
           </View>
-
-          {/* Bottom CTA Section */}
-          <View style={styles.bottomCTA}>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryLight]}
-              style={styles.ctaGradient}
-            >
-              <Text style={styles.ctaTitle}>Ready to get started?</Text>
-              <Text style={styles.ctaSubtitle}>Join thousands of successful farmers!</Text>
-            </LinearGradient>
-          </View>
         </ScrollView>
+      </SafeAreaView>
 
-        {/* Enhanced Error Modal */}
-        <Modal
-          visible={isErrorModalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setErrorModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.errorModalContent}>
+      {/* Enhanced Error Modal */}
+      <Modal
+        visible={isErrorModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.errorModalContent}>
+            <LinearGradient
+              colors={['#FF6B6B', '#FF8E8E']}
+              style={styles.errorIconContainer}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Ionicons name="alert-circle" size={scaleFont(52)} color={COLORS.white} />
+              <View style={styles.errorIconGlow} />
+            </LinearGradient>
+
+            <Text style={styles.errorModalTitle}>Oops! Something went wrong</Text>
+            <Text style={styles.errorModalText}>
+              We couldn't navigate to that screen right now. Please try selecting one of the available options below.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.errorModalButton}
+              onPress={() => setErrorModalVisible(false)}
+              activeOpacity={0.8}
+            >
               <LinearGradient
-                colors={['#FF6B6B', '#FF8E8E']}
-                style={styles.errorIconContainer}
+                colors={[COLORS.primary, COLORS.primaryLight]}
+                style={styles.buttonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Ionicons name="alert-circle-outline" size={scaleFont(48)} color={COLORS.white} />
+                <Text style={styles.errorModalButtonText}>I understand</Text>
+                <Ionicons
+                  name="checkmark"
+                  size={scaleFont(22)}
+                  color={COLORS.white}
+                  style={{ marginLeft: 8 }}
+                />
               </LinearGradient>
-              
-              <Text style={styles.errorModalTitle}>Oops! Something went wrong</Text>
-              <Text style={styles.errorModalText}>
-                We couldn't navigate to that screen right now. Please try selecting one of the available options below.
-              </Text>
-              
-              <TouchableOpacity
-                style={styles.errorModalButton}
-                onPress={() => setErrorModalVisible(false)}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.primaryLight]}
-                  style={styles.buttonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <Text style={styles.errorModalButtonText}>I understand</Text>
-                  <Ionicons 
-                    name="checkmark-outline" 
-                    size={scaleFont(20)} 
-                    color={COLORS.white}
-                    style={{ marginLeft: 8 }}
-                  />
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-        </Modal>
+        </View>
+      </Modal>
 
-        {/* Feedback Modal */}
-        <FeedbackModal
-          visible={isFeedbackVisible}
-          onClose={() => setIsFeedbackVisible(false)}
-        />
-      </View>
+      {/* Feedback Modal */}
+      <FeedbackModal
+        visible={isFeedbackVisible}
+        onClose={() => setIsFeedbackVisible(false)}
+      />
     </>
   );
 }
@@ -614,115 +608,181 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.lightWhite,
   },
-  
-  // Redesigned Compact Header Styles
+
+  // Enhanced Beautiful Header Styles
   headerGradient: {
-    paddingBottom: scaleVertical(20),
+    paddingBottom: scaleVertical(15),
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 12,
+    position: 'relative',
+    overflow: 'hidden',
   },
+
   headerSafeArea: {
-    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 5 : 0,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
   },
   headerContent: {
     paddingHorizontal: scaleHorizontal(20),
-    paddingTop: scaleVertical(10),
+    paddingTop: scaleVertical(8),
   },
   headerTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scaleVertical(15),
+    marginBottom: scaleVertical(12),
+    marginTop: scaleVertical(10),
   },
   modernBackButton: {
-    width: scaleHorizontal(42),
-    height: scaleVertical(42),
-    borderRadius: scaleHorizontal(21),
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: scaleHorizontal(45),
+    height: scaleVertical(45),
+    borderRadius: scaleHorizontal(22.5),
+    backgroundColor: 'rgba(255,255,255,0.25)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.4)',
+    position: 'relative',
+    overflow: 'hidden',
   },
   backButtonContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 2,
   },
-  signupButton: {
+  buttonShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: scaleHorizontal(22.5),
+  },
+  centerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: scaleHorizontal(20),
+  },
+  logoWithTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modernLogoContainer: {
+    width: scaleHorizontal(42),
+    height: scaleVertical(42),
     borderRadius: scaleHorizontal(21),
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: scaleHorizontal(12),
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.4)',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  logoShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: scaleHorizontal(21),
+  },
+  modernHeaderTitle: {
+    fontSize: scaleFont(26),
+    fontWeight: "900",
+    color: COLORS.white,
+    letterSpacing: 0.8,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 4,
+  },
+  modernSignupButton: {
+    borderRadius: scaleHorizontal(22.5),
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+    position: 'relative',
+    overflow: 'hidden',
   },
   signupContent: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scaleHorizontal(16),
-    paddingVertical: scaleVertical(10),
+    paddingVertical: scaleVertical(12),
+    zIndex: 2,
   },
   signupText: {
     color: COLORS.white,
-    fontSize: scaleFont(14),
-    fontWeight: "700",
-    marginLeft: scaleHorizontal(6),
-  },
-  headerTitleSection: {
-    alignItems: 'center',
-    paddingBottom: scaleVertical(15),
-  },
-  compactTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  compactLogoContainer: {
-    width: scaleHorizontal(40),
-    height: scaleVertical(40),
-    borderRadius: scaleHorizontal(20),
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: scaleHorizontal(12),
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  compactHeaderTitle: {
-    fontSize: scaleFont(24),
+    fontSize: scaleFont(15),
     fontWeight: "800",
-    color: COLORS.white,
-    letterSpacing: 0.5,
+    marginLeft: scaleHorizontal(6),
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
-  
-  // Content Styles
+  subtitleContainer: {
+    alignItems: 'center',
+    paddingBottom: scaleVertical(8),
+  },
+  headerSubtitle: {
+    fontSize: scaleFont(26),
+    fontWeight: '900',
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    letterSpacing: 0.8,
+    marginBottom: scaleVertical(8),
+  },
+  subtitleUnderline: {
+    width: scaleHorizontal(60),
+    height: scaleVertical(3),
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    borderRadius: scaleVertical(1.5),
+  },
+
+  // Enhanced Content Styles
   scrollView: {
     flex: 1,
     backgroundColor: COLORS.lightWhite,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingTop: scaleVertical(20),
-    paddingBottom: scaleVertical(100),
+    paddingTop: scaleVertical(25),
+    paddingBottom: scaleVertical(50),  // 100 se 50 karo
   },
   welcomeBanner: {
     marginHorizontal: scaleHorizontal(20),
-    marginBottom: scaleVertical(25),
-    borderRadius: scaleHorizontal(15),
+    marginBottom: scaleVertical(30),
+    borderRadius: scaleHorizontal(18),
     overflow: 'hidden',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
   bannerGradient: {
-    paddingVertical: scaleVertical(15),
+    paddingVertical: scaleVertical(18),
     paddingHorizontal: scaleHorizontal(20),
-    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(230, 138, 80, 0.2)',
+    borderColor: 'rgba(230, 138, 80, 0.3)',
+  },
+  bannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bannerText: {
-    fontSize: scaleFont(16),
+    fontSize: scaleFont(17),
     fontWeight: '700',
     color: COLORS.primary,
     textAlign: 'center',
+    marginHorizontal: scaleHorizontal(10),
+    letterSpacing: 0.3,
   },
   gridContainer: {
     flexDirection: "row",
@@ -910,167 +970,171 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
 
-  // Beautiful Feedback Button Styles
+  // Enhanced Feedback Button Styles
   feedbackSection: {
     marginHorizontal: scaleHorizontal(20),
     marginTop: scaleVertical(30),
     marginBottom: scaleVertical(20),
   },
   feedbackButton: {
-    borderRadius: scaleHorizontal(20),
+    borderRadius: scaleHorizontal(22),
     overflow: 'hidden',
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 16,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 20,
+    position: 'relative',
   },
   feedbackGradient: {
-    paddingVertical: scaleVertical(18),
-    paddingHorizontal: scaleHorizontal(20),
+    paddingVertical: scaleVertical(20),
+    paddingHorizontal: scaleHorizontal(22),
+    position: 'relative',
+    overflow: 'hidden',
   },
   feedbackContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    zIndex: 2,
   },
   feedbackIconContainer: {
-    width: scaleHorizontal(50),
-    height: scaleVertical(50),
-    borderRadius: scaleHorizontal(25),
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: scaleHorizontal(55),
+    height: scaleVertical(55),
+    borderRadius: scaleHorizontal(27.5),
+    backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.4)',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  feedbackIconGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: scaleHorizontal(27.5),
   },
   feedbackTextContainer: {
     flex: 1,
-    marginLeft: scaleHorizontal(15),
-    marginRight: scaleHorizontal(10),
+    marginLeft: scaleHorizontal(16),
+    marginRight: scaleHorizontal(12),
   },
   feedbackTitle: {
-    fontSize: scaleFont(18),
-    fontWeight: '800',
+    fontSize: scaleFont(19),
+    fontWeight: '900',
     color: COLORS.white,
-    marginBottom: scaleVertical(2),
+    marginBottom: scaleVertical(3),
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 4,
   },
   feedbackSubtitle: {
-    fontSize: scaleFont(13),
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: scaleFont(14),
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.85)',
+    letterSpacing: 0.2,
   },
   feedbackArrow: {
-    width: scaleHorizontal(36),
-    height: scaleVertical(36),
-    borderRadius: scaleHorizontal(18),
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: scaleHorizontal(40),
+    height: scaleVertical(40),
+    borderRadius: scaleHorizontal(20),
+    backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.4)',
   },
 
-  bottomCTA: {
-    marginHorizontal: scaleHorizontal(20),
-    marginTop: scaleVertical(10),
-    borderRadius: scaleHorizontal(20),
-    overflow: 'hidden',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 16,
-  },
-  ctaGradient: {
-    paddingVertical: scaleVertical(25),
-    paddingHorizontal: scaleHorizontal(20),
-    alignItems: 'center',
-  },
-  ctaTitle: {
-    fontSize: scaleFont(20),
-    fontWeight: '800',
-    color: COLORS.white,
-    marginBottom: scaleVertical(8),
-    textAlign: 'center',
-  },
-  ctaSubtitle: {
-    fontSize: scaleFont(14),
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.9)',
-    textAlign: 'center',
-  },
-  
+
   // Enhanced Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: scaleHorizontal(20),
   },
   errorModalContent: {
     backgroundColor: COLORS.white,
-    borderRadius: scaleHorizontal(30),
-    padding: scaleVertical(35),
+    borderRadius: scaleHorizontal(32),
+    padding: scaleVertical(40),
     alignItems: "center",
     width: '90%',
     shadowColor: COLORS.dark,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.4,
-    shadowRadius: 25,
-    elevation: 25,
+    shadowOffset: { width: 0, height: 25 },
+    shadowOpacity: 0.5,
+    shadowRadius: 30,
+    elevation: 30,
     borderWidth: 1,
     borderColor: 'rgba(230, 138, 80, 0.1)',
   },
   errorIconContainer: {
-    width: scaleHorizontal(90),
-    height: scaleVertical(90),
-    borderRadius: scaleHorizontal(45),
+    width: scaleHorizontal(95),
+    height: scaleVertical(95),
+    borderRadius: scaleHorizontal(47.5),
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: scaleVertical(25),
+    marginBottom: scaleVertical(28),
     shadowColor: '#FF6B6B',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 16,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  errorIconGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: scaleHorizontal(47.5),
   },
   errorModalTitle: {
-    fontSize: scaleFont(24),
+    fontSize: scaleFont(26),
     fontWeight: "900",
     color: COLORS.dark,
-    marginBottom: scaleVertical(12),
+    marginBottom: scaleVertical(15),
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   errorModalText: {
-    fontSize: scaleFont(16),
+    fontSize: scaleFont(17),
     color: COLORS.gray,
     textAlign: "center",
-    marginVertical: scaleVertical(15),
-    lineHeight: scaleFont(24),
-    paddingHorizontal: scaleHorizontal(10),
+    marginVertical: scaleVertical(18),
+    lineHeight: scaleFont(26),
+    paddingHorizontal: scaleHorizontal(12),
+    fontWeight: '500',
   },
   errorModalButton: {
-    marginTop: scaleVertical(25),
-    borderRadius: scaleHorizontal(30),
+    marginTop: scaleVertical(28),
+    borderRadius: scaleHorizontal(32),
     overflow: 'hidden',
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 16,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
   },
   buttonGradient: {
     flexDirection: 'row',
-    paddingVertical: scaleVertical(18),
-    paddingHorizontal: scaleHorizontal(40),
+    paddingVertical: scaleVertical(20),
+    paddingHorizontal: scaleHorizontal(45),
     alignItems: 'center',
     justifyContent: 'center',
   },
   errorModalButtonText: {
-    fontSize: scaleFont(16),
-    fontWeight: "700",
+    fontSize: scaleFont(18),
+    fontWeight: "800",
     color: COLORS.white,
+    letterSpacing: 0.3,
   },
 });

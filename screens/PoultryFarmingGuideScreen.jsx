@@ -7,12 +7,12 @@ import {
   FlatList,
   Dimensions,
   Alert,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -225,15 +225,17 @@ const PoultryFarmingGuideScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      {/* StatusBar ko transparent rakho, SafeAreaView adjust karega */}
       <StatusBar barStyle="light-content" backgroundColor="#D4743A" />
+
+      {/* Top Gradient Header */}
       <LinearGradient 
         colors={['#E68A50', '#D4743A', '#C2663A']} 
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <View style={styles.headerPattern} />
         
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -266,6 +268,7 @@ const PoultryFarmingGuideScreen = () => {
         </View>
       </LinearGradient>
 
+      {/* List Section */}
       <View style={styles.container}>
         <FlatList
           data={months}
@@ -573,4 +576,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export default PoultryFarmingGuideScreen
+export default PoultryFarmingGuideScreen;

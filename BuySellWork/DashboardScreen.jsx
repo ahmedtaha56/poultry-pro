@@ -332,20 +332,9 @@ const DashboardScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
             <ScrollView
-                contentContainerStyle={styles.scrollContainer}
+                contentContainerStyle={[styles.scrollContainer, { paddingBottom: insets.bottom + 30 }]}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Beautiful Header */}
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <Text style={styles.headerTitle}>Business Dashboard</Text>
-                        <Text style={styles.headerSubtitle}>Track your business performance</Text>
-                    </View>
-                    <View style={styles.headerDecoration}>
-                        <MaterialIcons name="analytics" size={28} color="#E68A50" />
-                    </View>
-                </View>
-
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <ActivityIndicator size="large" color="#E68A50" />
@@ -429,7 +418,7 @@ const DashboardScreen = ({ navigation }) => {
                             <View style={styles.chartContainer}>
                                 <LineChart
                                     data={lineChartData}
-                                    width={screenWidth - 32}
+                                    width={screenWidth - 75}
                                     height={220}
                                     yAxisLabel=""
                                     chartConfig={{
@@ -544,43 +533,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8F9FA'
     },
     scrollContainer: {
-        paddingBottom: 30
-    },
-    // Enhanced Header Styles
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 25,
-        borderBottomRightRadius: 25,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-        marginBottom: 20
-    },
-    headerContent: {
-        flex: 1
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#2C3E50',
-        marginBottom: 4
-    },
-    headerSubtitle: {
-        fontSize: 14,
-        color: '#7F8C8D',
-        fontWeight: '500'
-    },
-    headerDecoration: {
-        backgroundColor: '#FFF5F0',
-        padding: 12,
-        borderRadius: 15,
+        paddingBottom: 30,
+        paddingTop: 20
     },
     // Enhanced Stats Styles
     statsContainer: {
@@ -707,6 +661,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 12,
         elevation: 5,
+        alignItems: 'center'
     },
     chart: {
         borderRadius: 15

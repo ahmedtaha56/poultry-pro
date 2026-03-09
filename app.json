@@ -26,7 +26,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      [
+        "expo-font",
+        {
+          "fonts": ["node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"]
+        }
+      ]
     ]
   }
 }

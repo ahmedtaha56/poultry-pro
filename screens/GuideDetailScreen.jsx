@@ -1,11 +1,10 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     StyleSheet,
     Alert,
-    Animated,
     ScrollView,
     Dimensions,
     StatusBar,
@@ -13,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,36 +21,12 @@ const GuideDetailScreen = () => {
     const navigation = useNavigation();
     const { monthId } = route.params || {};
 
-    // Animations
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(50)).current;
-    const scaleAnim = useRef(new Animated.Value(0.9)).current;
-
     useEffect(() => {
         if (!monthId) {
             Alert.alert('Error', 'Invalid month ID. Please try again.');
             navigation.goBack();
-        } else {
-            // Staggered animations for smooth entrance
-            Animated.parallel([
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 600,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(slideAnim, {
-                    toValue: 0,
-                    duration: 700,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(scaleAnim, {
-                    toValue: 1,
-                    duration: 800,
-                    useNativeDriver: true,
-                }),
-            ]).start();
         }
-    }, [monthId, navigation, fadeAnim, slideAnim, scaleAnim]);
+    }, [monthId, navigation]);
 
     // Guide content (keeping your existing content structure)
     const guideContent = useMemo(() => ({
@@ -551,7 +527,7 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
     };
 
     return (
-        <>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <StatusBar barStyle="light-content" backgroundColor="#E68A50" />
             <LinearGradient colors={['#FFF8F4', '#FDF2E9']} style={styles.container}>
                 {/* Modern Header */}
@@ -576,15 +552,7 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
                 </LinearGradient>
 
                 {/* Professional Alert Banner */}
-                <Animated.View 
-                    style={[
-                        styles.alertBanner, 
-                        { 
-                            opacity: fadeAnim,
-                            transform: [{ translateY: slideAnim }]
-                        }
-                    ]}
-                >
+                <View style={styles.alertBanner}>
                     <LinearGradient 
                         colors={['#4CAF50', '#45A049']} 
                         style={styles.alertGradient}
@@ -596,7 +564,7 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
                             Always provide clean grains and fresh water. Cleanliness is crucial for optimal health.
                         </Text>
                     </LinearGradient>
-                </Animated.View>
+                </View>
 
                 {/* Content ScrollView */}
                 <ScrollView 
@@ -605,15 +573,7 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
                     showsVerticalScrollIndicator={false}
                 >
                     {/* Main Description Card */}
-                    <Animated.View 
-                        style={[
-                            styles.mainCard,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ scale: scaleAnim }]
-                            }
-                        ]}
-                    >
+                    <View style={styles.mainCard}>
                         <LinearGradient 
                             colors={['#FFFFFF', '#FAFAFA']} 
                             style={styles.cardGradient}
@@ -624,18 +584,10 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
                             </View>
                             <Text style={styles.descriptionText}>{content.description}</Text>
                         </LinearGradient>
-                    </Animated.View>
+                    </View>
 
                     {/* Sections */}
-                    <Animated.View 
-                        style={[
-                            styles.sectionsContainer,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ translateY: slideAnim }]
-                            }
-                        ]}
-                    >
+                    <View style={styles.sectionsContainer}>
                         {renderSection('Essential Precautions', content.precautions, 'shield-alt', '#FFF5F5')}
                         {renderSection('Proven Remedies', content.remedies, 'medkit', '#F0FDF4')}
                         {renderSection('Common Causes', content.causes, 'search', '#FEF3C7')}
@@ -652,10 +604,10 @@ It can cause fungal infections, digestive problems, and even permanent loss of e
                         {renderSection('Feeding Mistakes', content.mistakes, 'times-circle', '#FEF2F2')}
                         {renderSection('Pro Tips & Tricks', content.tips, 'star', '#F0FDF4')}
                         {renderSection('After One Year', content.afterOneYear, 'calendar-alt', '#EEF2FF')}
-                    </Animated.View>
+                    </View>
                 </ScrollView>
             </LinearGradient>
-        </>
+        </SafeAreaView>
     );
 };
 
@@ -664,7 +616,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingTop: StatusBar.currentHeight + 20,
+        paddingTop: 20,
         paddingBottom: 25,
         paddingHorizontal: 20,
         borderBottomLeftRadius: 30,

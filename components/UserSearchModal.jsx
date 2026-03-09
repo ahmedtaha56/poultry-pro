@@ -291,9 +291,11 @@ const UserSearchModal = ({ visible, onClose, navigation }) => {
               end={{ x: 1, y: 1 }}
             >
               <Image
-                source={{ 
-                  uri: item.profile_image || require('../assets/avatar-placeholder.png') 
-                }}
+                source={
+                  item.profile_image
+                    ? { uri: item.profile_image }
+                    : require('../assets/avatar-placeholder.png')
+                }
                 style={styles.userAvatar}
               />
             </LinearGradient>
@@ -382,9 +384,11 @@ const UserSearchModal = ({ visible, onClose, navigation }) => {
               end={{ x: 1, y: 1 }}
             >
               <Image
-                source={{ 
-                  uri: item.profile_image || require('../assets/avatar-placeholder.png') 
-                }}
+                source={
+                  item.profile_image
+                    ? { uri: item.profile_image }
+                    : require('../assets/avatar-placeholder.png')
+                }
                 style={styles.recentAvatar}
               />
             </LinearGradient>

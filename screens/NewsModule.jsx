@@ -8,15 +8,18 @@ import {
   ActivityIndicator, 
   TouchableOpacity,
   Image,
-  SafeAreaView,
   StatusBar,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+
 
 // Initialize Supabase client
 const supabaseUrl = 'https://bprdfdroaybigmecfsqc.supabase.co';
@@ -96,19 +99,21 @@ const NewsModule = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#F4A261" />
         
-        {/* Modern Header with Gradient */}
-        <LinearGradient
-          colors={['#F4A261', '#E9C46A']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
-          style={styles.header}
-        >
-          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-            <Icon name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Health News & Tips</Text>
-          <View style={styles.placeholder} />
-        </LinearGradient>
+        {/* Responsive Header Container */}
+        <View style={styles.headerContainer}>
+          <LinearGradient
+            colors={['#F4A261', '#E9C46A']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.header}
+          >
+            <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Health News & Tips</Text>
+            <View style={styles.placeholder} />
+          </LinearGradient>
+        </View>
 
         <View style={styles.loadingContainer}>
           <View style={styles.loadingCard}>
@@ -129,19 +134,21 @@ const NewsModule = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#F4A261" />
       
-      {/* Modern Header with Gradient */}
-      <LinearGradient
-        colors={['#F4A261', '#E9C46A']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}
-        style={styles.header}
-      >
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Icon name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Health News & Tips</Text>
-        <View style={styles.placeholder} />
-      </LinearGradient>
+      {/* Responsive Header Container */}
+      <View style={styles.headerContainer}>
+        <LinearGradient
+          colors={['#F4A261', '#E9C46A']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.header}
+        >
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Health News & Tips</Text>
+          <View style={styles.placeholder} />
+        </LinearGradient>
+      </View>
 
       {/* Hero Section */}
       <View style={styles.heroSection}>
@@ -166,7 +173,7 @@ const NewsModule = ({ navigation }) => {
         {news.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconContainer}>
-              <Icon name="newspaper-outline" size={80} color="#F4A261" />
+              <Ionicons name="newspaper-outline" size={80} color="#F4A261" />
             </View>
             <Text style={styles.emptyTitle}>No News Available</Text>
             <Text style={styles.emptySubtitle}>Pull down to refresh and check for new health updates</Text>
@@ -184,7 +191,7 @@ const NewsModule = ({ navigation }) => {
                     <Text style={styles.categoryText}>{item.category?.toUpperCase()}</Text>
                   </View>
                   <View style={styles.dateContainer}>
-                    <Icon name="time-outline" size={14} color="#8E8E93" />
+                    <Ionicons name="time-outline" size={14} color="#8E8E93" />
                     <Text style={styles.dateText}>{formatDate(item.created_at)}</Text>
                   </View>
                 </View>
@@ -192,7 +199,7 @@ const NewsModule = ({ navigation }) => {
                 {/* Title with Icon */}
                 <View style={styles.titleContainer}>
                   <View style={styles.titleIcon}>
-                    <Icon name="medical" size={20} color="#F4A261" />
+                    <Ionicons name="medical" size={20} color="#F4A261" />
                   </View>
                   <Text style={styles.newsTitle}>{item.title}</Text>
                 </View>
@@ -225,7 +232,7 @@ const NewsModule = ({ navigation }) => {
                       >
                         <View style={styles.tipHeader}>
                           <View style={[styles.tipIconContainer, { backgroundColor: '#2A9D8F' }]}>
-                            <Icon name="shield-checkmark" size={16} color="#FFFFFF" />
+                            <Ionicons name="shield-checkmark" size={16} color="#FFFFFF" />
                           </View>
                           <Text style={styles.tipTitle}>Prevention</Text>
                         </View>
@@ -242,7 +249,7 @@ const NewsModule = ({ navigation }) => {
                       >
                         <View style={styles.tipHeader}>
                           <View style={[styles.tipIconContainer, { backgroundColor: '#F4A261' }]}>
-                            <Icon name="medical" size={16} color="#FFFFFF" />
+                            <Ionicons name="medical" size={16} color="#FFFFFF" />
                           </View>
                           <Text style={styles.tipTitle}>Medicine</Text>
                         </View>
@@ -259,7 +266,7 @@ const NewsModule = ({ navigation }) => {
                       >
                         <View style={styles.tipHeader}>
                           <View style={[styles.tipIconContainer, { backgroundColor: '#E76F51' }]}>
-                            <Icon name="heart" size={16} color="#FFFFFF" />
+                            <Ionicons name="heart" size={16} color="#FFFFFF" />
                           </View>
                           <Text style={styles.tipTitle}>Care Information</Text>
                         </View>
@@ -268,8 +275,6 @@ const NewsModule = ({ navigation }) => {
                     </TouchableOpacity>
                   )}
                 </View>
-                
-                {/* Removed Read More Button */}
               </View>
             </TouchableOpacity>
           ))
@@ -284,39 +289,44 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
+  // New responsive header container
+  headerContainer: {
+    width: '100%',
+    zIndex: 1000,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingTop: 20,
+    paddingHorizontal: Math.max(20, width * 0.05), // Responsive horizontal padding
+    paddingBottom: 16,
+    minHeight: Platform.OS === 'android' ? 70 : 60, // Minimum height for different platforms
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: Math.max(44, width * 0.11), // Responsive button size
+    height: Math.max(44, width * 0.11),
+    borderRadius: Math.max(22, width * 0.055),
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     backdropFilter: 'blur(10px)',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: Math.max(18, Math.min(22, width * 0.055)), // Responsive font size
     fontWeight: '800',
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
     letterSpacing: 0.5,
+    marginHorizontal: 10,
   },
-  // removed refreshButton styles
   placeholder: {
-    width: 44,
+    width: Math.max(44, width * 0.11), // Same as back button width
   },
   heroSection: {
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: Math.max(20, width * 0.05),
+    paddingVertical: Math.max(20, height * 0.025),
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
@@ -327,14 +337,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   heroTitle: {
-    fontSize: 24,
+    fontSize: Math.max(20, Math.min(24, width * 0.06)),
     fontWeight: '700',
     color: '#264653',
     marginBottom: 8,
     textAlign: 'center',
   },
   heroSubtitle: {
-    fontSize: 16,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     color: '#8E8E93',
     textAlign: 'center',
     fontWeight: '500',
@@ -343,7 +353,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
+    padding: Math.max(16, width * 0.04),
     paddingBottom: 40,
   },
   loadingContainer: {
@@ -362,10 +372,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
+    maxWidth: width * 0.8,
   },
   loadingText: {
     marginTop: 20,
-    fontSize: 18,
+    fontSize: Math.max(16, Math.min(18, width * 0.045)),
     color: '#264653',
     fontWeight: '600',
     textAlign: 'center',
@@ -387,23 +398,23 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: Math.max(100, width * 0.25),
+    height: Math.max(100, width * 0.25),
+    borderRadius: Math.max(50, width * 0.125),
     backgroundColor: '#FFF8F3',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: Math.max(20, Math.min(24, width * 0.06)),
     fontWeight: '700',
     color: '#264653',
     marginBottom: 12,
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontSize: 16,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     color: '#8E8E93',
     textAlign: 'center',
     paddingHorizontal: 40,
@@ -423,13 +434,13 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     fontWeight: '600',
   },
   newsCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 24,
+    padding: Math.max(20, width * 0.05),
     marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -444,6 +455,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+    flexWrap: 'wrap',
   },
   categoryBadge: {
     paddingHorizontal: 16,
@@ -452,7 +464,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4A261',
   },
   categoryText: {
-    fontSize: 12,
+    fontSize: Math.max(10, Math.min(12, width * 0.03)),
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 1,
@@ -463,7 +475,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dateText: {
-    fontSize: 13,
+    fontSize: Math.max(11, Math.min(13, width * 0.032)),
     color: '#8E8E93',
     fontWeight: '500',
   },
@@ -483,11 +495,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   newsTitle: {
-    fontSize: 22,
+    fontSize: Math.max(18, Math.min(22, width * 0.055)),
     fontWeight: '700',
     color: '#264653',
     flex: 1,
-    lineHeight: 28,
+    lineHeight: Math.max(24, Math.min(28, width * 0.07)),
   },
   imageContainer: {
     borderRadius: 16,
@@ -497,7 +509,7 @@ const styles = StyleSheet.create({
   },
   newsImage: {
     width: '100%',
-    height: 220,
+    height: Math.max(180, Math.min(220, height * 0.25)),
   },
   imageOverlay: {
     position: 'absolute',
@@ -507,8 +519,8 @@ const styles = StyleSheet.create({
     height: 60,
   },
   newsContent: {
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: Math.max(15, Math.min(17, width * 0.042)),
+    lineHeight: Math.max(22, Math.min(26, width * 0.065)),
     color: '#495057',
     marginBottom: 24,
     fontWeight: '400',
@@ -522,7 +534,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tipGradient: {
-    padding: 20,
+    padding: Math.max(16, width * 0.04),
   },
   tipHeader: {
     flexDirection: 'row',
@@ -538,17 +550,15 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   tipTitle: {
-    fontSize: 16,
+    fontSize: Math.max(14, Math.min(16, width * 0.04)),
     fontWeight: '700',
     color: '#264653',
   },
   tipContent: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: Math.max(13, Math.min(15, width * 0.037)),
+    lineHeight: Math.max(20, Math.min(22, width * 0.055)),
     color: '#495057',
     fontWeight: '400',
   },
-  // removed readMore button styles
 });
-
 export default NewsModule;

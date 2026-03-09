@@ -5,20 +5,30 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Alert,
   ScrollView,
-  Dimensions
+  Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { updateProfile as updateProfileAction } from '../redux/profileslice/profileSlice';
 import { setProfileLoadedOnce } from '../redux/appSlice';
 import { supabase } from '../lib/supabase';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
+import PoultryLogo from '../components/PoultryLogo'; // Import your SVG component
 
 const { width, height } = Dimensions.get('window');
+
+// Safe area insets for different platforms
+const getBottomInset = () => {
+  if (Platform.OS === 'ios') {
+    return height > 800 ? 44 : 30; // iPhone X+ vs older iPhones
+  } else {
+    return 30; // Android - more padding for navigation bar
+  }
+};
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -40,6 +50,20 @@ const SignupScreen = ({ navigation }) => {
     password: false,
     confirmPassword: false
   });
+
+  React.useEffect(() => {
+    const checkSession = async () => {
+      setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigation.replace('JobCategory');
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [navigation]);
 
   const validateFields = () => {
     const errors = {
@@ -195,215 +219,225 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        <View style={styles.inner}>
-          {/* Header Section */}
-          <View style={styles.headerSection}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={{ uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDUiIGZpbGw9IiNFNjhBNTAiLz48cGF0aCBkPSJNMzUgNDBDMzUgMzUgNDAgMzAgNTAgMzBDNjAgMzAgNjUgMzUgNjUgNDBWNjBINzBWNDBDNzAgMzAgNjAgMjUgNTAgMjVDNDAgMjUgMzAgMzAgMzAgNDBWNjBIMzVWNDBaIiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjQyIiBjeT0iNDIiIHI9IjMiIGZpbGw9IiNFNjhBNTAiLz48Y2lyY2xlIGN4PSI1OCIgY3k9IjQyIiByPSIzIiBmaWxsPSIjRTY4QTUwIi8+PHBhdGggZD0iTTQ1IDUwSDU1QzU1IDU1IDUwIDU4IDUwIDU4QzUwIDU4IDQ1IDU1IDQ1IDUwWiIgZmlsbD0iI0U2OEE1MCIvPjwvc3ZnPg==' }}
-                style={styles.logo}
-              />
-            </View>
-            <Text style={styles.title}>Create Your Account</Text>
-            <Text style={styles.subtitle}>Join Poultry Pro today and start your journey</Text>
-          </View>
-
-          {/* Form Section */}
-          <View style={styles.formSection}>
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'name' && styles.inputContainerFocused,
-              fieldErrors.name && styles.inputContainerError
-            ]}>
-              <Icon 
-                name="person" 
-                size={20} 
-                color={fieldErrors.name ? '#FF4444' : (focusedField === 'name' ? '#E68A50' : '#E68A50')} 
-                style={styles.inputIcon} 
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  { outline: 'none' } // This removes the black box in web
-                ]}
-                placeholder="Full Name"
-                placeholderTextColor={fieldErrors.name ? '#FF9999' : '#A0A0A0'}
-                value={name}
-                onChangeText={(value) => handleFieldChange('name', value, setName)}
-                autoCapitalize="words"
-                onFocus={() => setFocusedField('name')}
-                onBlur={() => setFocusedField('')}
-                selectionColor="#E68A50"
-              />
-            </View>
-
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'email' && styles.inputContainerFocused,
-              fieldErrors.email && styles.inputContainerError
-            ]}>
-              <Icon 
-                name="email" 
-                size={20} 
-                color={fieldErrors.email ? '#FF4444' : (focusedField === 'email' ? '#E68A50' : '#E68A50')} 
-                style={styles.inputIcon} 
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  { outline: 'none' }
-                ]}
-                placeholder="Email Address"
-                placeholderTextColor={fieldErrors.email ? '#FF9999' : '#A0A0A0'}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={(value) => handleFieldChange('email', value, setEmail)}
-                onFocus={() => setFocusedField('email')}
-                onBlur={() => setFocusedField('')}
-                selectionColor="#E68A50"
-              />
-            </View>
-
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'password' && styles.inputContainerFocused,
-              fieldErrors.password && styles.inputContainerError
-            ]}>
-              <Icon 
-                name="lock" 
-                size={20} 
-                color={fieldErrors.password ? '#FF4444' : (focusedField === 'password' ? '#E68A50' : '#E68A50')} 
-                style={styles.inputIcon} 
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  { outline: 'none' }
-                ]}
-                placeholder="Password"
-                placeholderTextColor={fieldErrors.password ? '#FF9999' : '#A0A0A0'}
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={(value) => handleFieldChange('password', value, setPassword)}
-                autoCapitalize="none"
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => setFocusedField('')}
-                selectionColor="#E68A50"
-              />
-              <TouchableOpacity 
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <Icon 
-                  name={showPassword ? "visibility-off" : "visibility"} 
-                  size={20} 
-                  color={fieldErrors.password ? '#FF4444' : '#A0A0A0'} 
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          <View style={styles.inner}>
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <View style={styles.logoContainer}>
+                <PoultryLogo 
+                  size={Math.max(65, width * 0.16)} 
+                  color="#E68A50"
                 />
+              </View>
+              <Text style={styles.title}>Create Your Account</Text>
+              <Text style={styles.subtitle}>Join Poultry Pro today and start your journey</Text>
+            </View>
+
+            {/* Form Section */}
+            <View style={styles.formSection}>
+              <View style={[
+                styles.inputContainer,
+                focusedField === 'name' && styles.inputContainerFocused,
+                fieldErrors.name && styles.inputContainerError
+              ]}>
+                <MaterialIcons 
+                  name="person" 
+                  size={20} 
+                  color={fieldErrors.name ? '#FF4444' : (focusedField === 'name' ? '#E68A50' : '#E68A50')} 
+                  style={styles.inputIcon} 
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    { outline: 'none' } // This removes the black box in web
+                  ]}
+                  placeholder="Full Name"
+                  placeholderTextColor={fieldErrors.name ? '#FF9999' : '#A0A0A0'}
+                  value={name}
+                  onChangeText={(value) => handleFieldChange('name', value, setName)}
+                  autoCapitalize="words"
+                  onFocus={() => setFocusedField('name')}
+                  onBlur={() => setFocusedField('')}
+                  selectionColor="#E68A50"
+                />
+              </View>
+
+              <View style={[
+                styles.inputContainer,
+                focusedField === 'email' && styles.inputContainerFocused,
+                fieldErrors.email && styles.inputContainerError
+              ]}>
+                <MaterialIcons 
+                  name="email" 
+                  size={20} 
+                  color={fieldErrors.email ? '#FF4444' : (focusedField === 'email' ? '#E68A50' : '#E68A50')} 
+                  style={styles.inputIcon} 
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    { outline: 'none' }
+                  ]}
+                  placeholder="Email Address"
+                  placeholderTextColor={fieldErrors.email ? '#FF9999' : '#A0A0A0'}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={email}
+                  onChangeText={(value) => handleFieldChange('email', value, setEmail)}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField('')}
+                  selectionColor="#E68A50"
+                />
+              </View>
+
+              <View style={[
+                styles.inputContainer,
+                focusedField === 'password' && styles.inputContainerFocused,
+                fieldErrors.password && styles.inputContainerError
+              ]}>
+                <MaterialIcons 
+                  name="lock" 
+                  size={20} 
+                  color={fieldErrors.password ? '#FF4444' : (focusedField === 'password' ? '#E68A50' : '#E68A50')} 
+                  style={styles.inputIcon} 
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    { outline: 'none' }
+                  ]}
+                  placeholder="Password"
+                  placeholderTextColor={fieldErrors.password ? '#FF9999' : '#A0A0A0'}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(value) => handleFieldChange('password', value, setPassword)}
+                  autoCapitalize="none"
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField('')}
+                  selectionColor="#E68A50"
+                />
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <MaterialIcons 
+                    name={showPassword ? "visibility-off" : "visibility"} 
+                    size={20} 
+                    color={fieldErrors.password ? '#FF4444' : '#A0A0A0'} 
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={[
+                styles.inputContainer,
+                focusedField === 'confirmPassword' && styles.inputContainerFocused,
+                fieldErrors.confirmPassword && styles.inputContainerError
+              ]}>
+                <MaterialIcons 
+                  name="lock" 
+                  size={20} 
+                  color={fieldErrors.confirmPassword ? '#FF4444' : (focusedField === 'confirmPassword' ? '#E68A50' : '#E68A50')} 
+                  style={styles.inputIcon} 
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    { outline: 'none' }
+                  ]}
+                  placeholder="Confirm Password"
+                  placeholderTextColor={fieldErrors.confirmPassword ? '#FF9999' : '#A0A0A0'}
+                  secureTextEntry={!showConfirmPassword}
+                  value={confirmPassword}
+                  onChangeText={(value) => handleFieldChange('confirmPassword', value, setConfirmPassword)}
+                  autoCapitalize="none"
+                  onFocus={() => setFocusedField('confirmPassword')}
+                  onBlur={() => setFocusedField('')}
+                  selectionColor="#E68A50"
+                />
+                <TouchableOpacity 
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <MaterialIcons 
+                    name={showConfirmPassword ? "visibility-off" : "visibility"} 
+                    size={20} 
+                    color={fieldErrors.confirmPassword ? '#FF4444' : '#A0A0A0'} 
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.button, isLoading && styles.disabledButton]}
+                onPress={handleSignup}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </Text>
+                {!isLoading && <MaterialIcons name="arrow-forward" size={20} color="#fff" style={styles.buttonIcon} />}
               </TouchableOpacity>
             </View>
 
-            <View style={[
-              styles.inputContainer,
-              focusedField === 'confirmPassword' && styles.inputContainerFocused,
-              fieldErrors.confirmPassword && styles.inputContainerError
-            ]}>
-              <Icon 
-                name="lock" 
-                size={20} 
-                color={fieldErrors.confirmPassword ? '#FF4444' : (focusedField === 'confirmPassword' ? '#E68A50' : '#E68A50')} 
-                style={styles.inputIcon} 
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  { outline: 'none' }
-                ]}
-                placeholder="Confirm Password"
-                placeholderTextColor={fieldErrors.confirmPassword ? '#FF9999' : '#A0A0A0'}
-                secureTextEntry={!showConfirmPassword}
-                value={confirmPassword}
-                onChangeText={(value) => handleFieldChange('confirmPassword', value, setConfirmPassword)}
-                autoCapitalize="none"
-                onFocus={() => setFocusedField('confirmPassword')}
-                onBlur={() => setFocusedField('')}
-                selectionColor="#E68A50"
-              />
+            {/* Footer Section */}
+            <View style={styles.footerSection}>
               <TouchableOpacity 
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={styles.eyeIcon}
+                onPress={() => navigation.navigate('Login')}
+                style={styles.linkContainer}
               >
-                <Icon 
-                  name={showConfirmPassword ? "visibility-off" : "visibility"} 
-                  size={20} 
-                  color={fieldErrors.confirmPassword ? '#FF4444' : '#A0A0A0'} 
-                />
+                <Text style={styles.linkText}>Already have an account? </Text>
+                <Text style={styles.linkTextBold}>Login</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.disabledButton]}
-              onPress={handleSignup}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>
-                {isLoading ? 'Creating Account...' : 'Create Account'}
-              </Text>
-              {!isLoading && <Icon name="arrow-forward" size={20} color="#fff" style={styles.buttonIcon} />}
-            </TouchableOpacity>
           </View>
-
-          {/* Footer Section */}
-          <View style={styles.footerSection}>
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('Login')}
-              style={styles.linkContainer}
-            >
-              <Text style={styles.linkText}>Already have an account? </Text>
-              <Text style={styles.linkTextBold}>Login</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingBottom: Math.max(25, getBottomInset() + 5), // Safe bottom padding
   },
   inner: {
     flex: 1,
-    paddingHorizontal: 30,
-    paddingVertical: 20,
+    paddingHorizontal: Math.max(25, width * 0.06), // Responsive horizontal padding
+    paddingTop: Math.max(40, height * 0.05), // Increased top padding
+    paddingBottom: 20,
   },
   headerSection: {
     alignItems: 'center',
-    marginTop: height * 0.08,
-    marginBottom: 40,
+    marginTop: Math.max(30, height * 0.04), // Increased top margin
+    marginBottom: Math.max(30, height * 0.04), // Increased bottom margin
   },
   logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: Math.max(100, width * 0.25), // Responsive logo size
+    height: Math.max(100, width * 0.25),
+    borderRadius: Math.max(50, width * 0.125),
     backgroundColor: '#FFF5F2',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: Math.max(25, height * 0.03), // Increased margin
     shadowColor: '#E68A50',
     shadowOffset: {
       width: 0,
@@ -413,33 +447,31 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 10,
   },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
   title: {
-    fontSize: 28,
+    fontSize: Math.max(24, width * 0.065), // Responsive font size
     fontWeight: '700',
     color: '#2C2C2C',
-    marginBottom: 8,
+    marginBottom: 8, // Increased margin
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: Math.max(14, width * 0.035), // Responsive font size
     color: '#7A7A7A',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: Math.max(20, width * 0.05),
   },
   formSection: {
-    flex: 1,
+    width: '100%',
+    maxWidth: 400, // Max width for larger screens
+    alignSelf: 'center',
+    marginBottom: Math.max(25, height * 0.03), // Add margin bottom
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FAFAFA',
     borderRadius: 15,
-    marginBottom: 20,
+    marginBottom: Math.max(18, height * 0.022), // Increased margin
     paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: '#F0F0F0',
@@ -451,7 +483,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
-    transition: 'all 0.3s ease', // Smooth transition for focus effect
   },
   inputContainerFocused: {
     borderColor: '#E68A50',
@@ -476,12 +507,12 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 55,
-    fontSize: 16,
+    height: Math.max(50, height * 0.06), // Responsive input height
+    fontSize: Math.max(15, width * 0.038), // Responsive font size
     color: '#2C2C2C',
-    outlineStyle: 'none', // Removes the black outline box
-    outlineWidth: 0, // Additional safety for removing outline
-    borderWidth: 0, // Ensure no border
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    borderWidth: 0,
   },
   eyeIcon: {
     padding: 5,
@@ -489,11 +520,11 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     backgroundColor: '#E68A50',
-    height: 55,
+    height: Math.max(50, height * 0.06), // Responsive button height
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: Math.max(20, height * 0.025), // Increased top margin
     shadowColor: '#E68A50',
     shadowOffset: {
       width: 0,
@@ -509,7 +540,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: Math.max(16, width * 0.04), // Responsive font size
     fontWeight: '600',
     marginRight: 8,
   },
@@ -518,8 +549,8 @@ const styles = StyleSheet.create({
   },
   footerSection: {
     alignItems: 'center',
-    marginTop: 30,
-    paddingBottom: 20,
+    marginTop: Math.max(30, height * 0.038), // Reduced gap between button and footer
+    paddingBottom: 15,
   },
   linkContainer: {
     flexDirection: 'row',
@@ -527,11 +558,11 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#7A7A7A',
-    fontSize: 16,
+    fontSize: Math.max(14, width * 0.035), // Responsive font size
   },
   linkTextBold: {
     color: '#E68A50',
-    fontSize: 16,
+    fontSize: Math.max(14, width * 0.035), // Responsive font size
     fontWeight: '600',
   },
 });

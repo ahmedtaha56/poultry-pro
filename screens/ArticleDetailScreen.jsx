@@ -6,13 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   StatusBar,
   Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const { width } = Dimensions.get('window');
 
@@ -31,12 +32,14 @@ const ArticleDetailScreen = ({ route }) => {
         '• Global concern for food security\n\n' +
         'Primary Transmission Routes:\n' +
         '🌍 Wild bird migration patterns\n' +
+        '🌍 It also happens due to weather changes, especially during rain.\n' +
         '🤝 Direct bird-to-bird contact\n' +
         '👤 Human-mediated transmission\n' +
         '🧼 Contaminated equipment and surfaces',
       precautions: 'Comprehensive Prevention Measures:\n\n' +
         '🛡️ Biosecurity Essentials:\n' +
         '- Strict farm access control\n' +
+        '- Keep your eating and drinking utensils neat and clean.\n' +
         '- Regular disinfection protocols\n' +
         '- Proper waste management systems\n\n' +
         '💉 Vaccination Strategy:\n' +
@@ -53,8 +56,8 @@ const ArticleDetailScreen = ({ route }) => {
         '- Collaboration with veterinary authorities',
       remedies: 'Management and Control Measures:\n\n' +
         '💊 Veterinary Interventions:\n' +
-        '- Antiviral medications (Oseltamivir, Zanamivir)\n' +
-        '- Supportive care for affected birds\n' +
+        '- Crush one tablet each of Deltacortril 5mg, Piriton, Kenadex (Dexamethasone), Provas, and Augmentin 625 into powder form. Mix the powder with half a piece of jaggery. Make small balls (about the size of a date) and give one ball daily, every 24 hours, for a full week. Whenever you give the ball, also give 20cc of water, and after that keep clean water available for 1 hour.\n' +
+        '- If the condition is very serious, additionally use Neurobion and Methycobal with Dexamethasone injection. Mix them together and inject 1cc for adult chickens. For smaller ones (around 6 months old), inject half cc.\n' +
         '- Proper disposal of infected carcasses\n\n' +
         '🌿 Natural Supportive Measures:\n' +
         '- Garlic water for immune support\n' +
@@ -103,6 +106,7 @@ const ArticleDetailScreen = ({ route }) => {
         '🛡️ Biosecurity Measures:\n' +
         '- Strict quarantine protocols\n' +
         '- Controlled farm access\n' +
+        '- Keep your eating and drinking utensils neat and clean.\n' +
         '- Regular disinfection routines\n\n' +
         '💉 Vaccination Program:\n' +
         '- Implement routine vaccination\n' +
@@ -115,7 +119,7 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: 'Management and Treatment Options:\n\n' +
         '⚠️ Immediate Actions:\n' +
         '- Isolate infected birds immediately\n' +
-        '- Implement strict quarantine measures\n' +
+        '- Currently, there is no proper medicine for this because it is extremely dangerous. However, if this condition still occurs, use this remedy: **Neurobion and Methycobal with Dexamethasone injection**. Mix them together and inject **1cc for adult chickens**. For smaller ones (around 6 months old), inject **half cc**.\n' +
         '- Notify local veterinary authorities\n\n' +
         '💊 Supportive Care:\n' +
         '- Provide electrolyte solutions\n' +
@@ -179,8 +183,8 @@ const ArticleDetailScreen = ({ route }) => {
         '💊 Medicines:\n' +
         '- Use medicines like Amprolium, Sulfadimethoxine, or Toltrazuril (Veterinary Store)\n' +
         '- OR\n' +
-        '- For 1-2 months old chickens, divide one Disprin tablet into 8 parts and give one part daily for 8 days\n' +
-        '- For 2-6 months old chickens, divide one Disprin tablet into 4 parts and give one part daily for 8 days\n' +
+        '- For 1-2 months old chickens, divide one Disprin tablet into 8 parts and give one part and half velosef capsule daily for 8 days\n' +
+        '- For 2-6 months old chickens, divide one Disprin tablet into 4 parts and give one part and half velosef capsule daily for 8 days\n' +
         '- Follow dosage instructions carefully\n\n' +
         '🌿 Natural Supportive Measures:\n' +
         '- Add apple cider vinegar to drinking water (2 caps in 1 liter water)\n' +
@@ -231,11 +235,11 @@ const ArticleDetailScreen = ({ route }) => {
         "Once infected, birds remain carriers for life.",
       remedies: "Management and Treatment:\n\n" +
         "💊 No Cure:\n" +
-        "- There is no cure for Marek's Disease\n" +
+        "- Use Vitamin D injection every other day for 5 days Or mix Neurobion + Methycobal and inject 1cc for birds older than 6 months, and half cc for birds younger than 6 months.\n" +
         "- Focus on prevention through vaccination\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide a stress-free environment\n" +
-        "- Ensure proper nutrition\n" +
+        "- Ensure proper nutrition like protein\n" +
         "- Isolate affected birds immediately\n\n" +
         "🚨 Critical Note:\n" +
         "Culling of infected birds is often necessary to prevent spread.",
@@ -281,6 +285,7 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Supportive Care:\n" +
         "- Provide warm and dry housing\n" +
+        "- Use Panadol or Brufen syrup.\n" +
         "- Add vitamins to drinking water\n" +
         "- Ensure proper nutrition\n\n" +
         "⚠️ Important:\n" +
@@ -324,11 +329,9 @@ const ArticleDetailScreen = ({ route }) => {
         "- Regularly disinfect the coop",
       remedies: "Management and Treatment:\n\n" +
         "💊 Supportive Care:\n" +
-        "- Provide a stress-free environment\n" +
-        "- Add vitamins to drinking water\n" +
-        "- Ensure proper nutrition\n\n" +
-        "⚠️ Important:\n" +
-        "There is no specific treatment for fowl pox. Focus on preventing secondary infections.",
+        "- Wherever fowlpox spots appear, rub garlic directly on those spots.\n" +
+        "- Add vitamins and garlic to drinking water\n" +
+        "- Ensure proper nutrition",
       images: {
         whatIs: [
           require('../disease/FowlPox1.jpg'),
@@ -368,10 +371,10 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Antibiotics:\n" +
         "- Use antibiotics like Enrofloxacin or Amoxicillin\n" +
-        "- Follow veterinary advice\n\n" +
+        "- Give one Amoxil tablet if the bird is over 6 months old, otherwise give half a tablet.\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide electrolytes in drinking water\n" +
-        "- Ensure proper nutrition\n\n" +
+        "- Ensure proper nutrition like protein and vitamins\n\n" +
         "⚠️ Important:\n" +
         "Early diagnosis and treatment are crucial.",
       images: {
@@ -423,7 +426,7 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Antifungal Medications:\n" +
         "- Use antifungal drugs like Itraconazole or Amphotericin B\n" +
-        "- Follow veterinary advice for dosage\n\n" +
+        "- Give one Vibramycin or Velosef tablet if the bird is over 6 months old; otherwise, give half a tablet.\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide a warm and dry environment\n" +
         "- Add vitamins to drinking water\n" +
@@ -476,8 +479,9 @@ const ArticleDetailScreen = ({ route }) => {
         "⚠️ Important:\n" +
         "Preventing the introduction of the virus is key to avoiding EDS.",
       remedies: "Management and Treatment:\n\n" +
-        "💊 No Specific Treatment:\n" +
-        "- There is no specific antiviral treatment for EDS\n" +
+        "💊Treatment:\n" +
+        "- Give calcium-rich items, like good quality calcium powder or crushed eggshells (after grinding them).\n" +
+        "Always give turmeric, because sometimes this also happens due to internal infection.\n" +
         "- Focus on supportive care and prevention\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide a balanced diet rich in calcium\n" +
@@ -531,7 +535,8 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Antibiotics:\n" +
         "- Use antibiotics like Erythromycin or Oxytetracycline\n" +
-        "- Follow veterinary advice for dosage\n\n" +
+        " - Use ginger and garlic\n" +
+        "- Give Velosef capsule for 1 week. If recovery doesn’t happen, start the capsule course again for another week. For birds over 6 months old, give a full capsule; for younger ones, give half a capsule.\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide a warm and dry environment\n" +
         "- Add vitamins to drinking water\n" +
@@ -584,10 +589,9 @@ const ArticleDetailScreen = ({ route }) => {
         "- Always provide fresh and clean water\n" +
         "- Avoid overcrowding to reduce stress",
       remedies: "Management and Treatment:\n\n" +
-        "🌿 Natural Remedies:\n" +
-        "- Warm water with honey to soothe the throat\n" +
-        "- Herbal teas like chamomile for respiratory relief\n\n" +
-        "💊 Supportive Care:\n" +
+        "💊 Treatment:\n" +
+        "- Use Brufen or Panadol syrup/tablet.\n\n" +
+        "🌿 Supportive Care:\n" +
         "- Increase protein intake for immune support\n" +
         "- Provide dry and warm resting areas\n" +
         "- Use steam therapy to ease breathing\n\n" +
@@ -638,7 +642,7 @@ const ArticleDetailScreen = ({ route }) => {
         "- Prevent wild birds from accessing feed and water",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medications:\n" +
-        "- Use antiprotozoal drugs like Metronidazole (under vet guidance)\n" +
+        "- Give one Vibramycin or Velosef tablet if the bird is over 6 months old; otherwise, give half a tablet.\n" +
         "- Follow the prescribed dosage strictly\n\n" +
         "🌿 Natural Support:\n" +
         "- Apple cider vinegar in drinking water\n" +
@@ -691,7 +695,7 @@ const ArticleDetailScreen = ({ route }) => {
         "- Maintain a balanced diet with vitamins",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Support:\n" +
-        "- Consult a vet for antibiotics if bacterial infection is suspected\n" +
+        "- Use Brufen or Panadol syrup/tablet.\n" +
         "- Use anti-inflammatory medication under veterinary guidance\n\n" +
         "🌿 Natural Support:\n" +
         "- Apple cider vinegar to boost immunity\n" +
@@ -743,6 +747,8 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Medications:\n" +
         "- Use antibiotics like Tylosin or Oxytetracycline (vet recommended)\n" +
+        "- If the mucus is old, get a Montika sachet from the medical store. Mix one sachet in 1 liter of water and place it in front of them to drink.\n" +
+        " - In the morning, give one Lefloxine 250mg on an empty stomach, and in the evening, while tying the bird, give Amoxil.If the bird is younger than 6 months, give only half Amoxil and do not give Lefloxine.\n" +
         "- Steam therapy to ease respiratory discomfort\n\n" +
         "🌿 Natural Remedies:\n" +
         "- Add garlic and apple cider vinegar to drinking water\n" +
@@ -790,8 +796,8 @@ const ArticleDetailScreen = ({ route }) => {
         "- Inspect birds for early signs of leg infections",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medications:\n" +
-        "- Apply antibiotic ointment for bacterial infections\n" +
-        "- Use anti-inflammatory medicine under veterinary guidance\n\n" +
+        "- Inject 1cc of Penicillin 5 lac if the bird is over 5 months old otherwise, do not give it\n" +
+        "- For birds younger than 5 months, give half a Velosef capsule mixed with turmeric and flour\n\n" +
         "🌿 Natural Support:\n" +
         "- Soak legs in warm water with Epsom salt\n" +
         "- Turmeric and garlic for natural anti-inflammatory benefits\n\n" +
@@ -842,8 +848,7 @@ const ArticleDetailScreen = ({ route }) => {
         "- Keep feed and water sources clean and uncontaminated",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medications:\n" +
-        "- Use antibiotics like Oxytetracycline to prevent secondary bacterial infections\n" +
-        "- Administer antiviral drugs if available and under veterinary guidance\n\n" +
+        "- Crush one tablet each of Deltacortril 5mg, Piriton, Kenadex (Dexamethasone), Provas, and Augmentin 625 into powder form. Mix the powder with half a piece of jaggery. Make small balls (about the size of a date) and give one ball daily, every 24 hours, for a full week. Whenever you give the ball, also give 20cc of water, and after that keep clean water available for 1 hour.\n\n" +
         "🌿 Natural Support:\n" +
         "- Provide warm water with electrolytes to boost hydration\n" +
         "- Add garlic and apple cider vinegar to drinking water for immunity support\n\n" +
@@ -945,7 +950,7 @@ const ArticleDetailScreen = ({ route }) => {
         "- Isolate sick birds to prevent the spread of infection",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Treatment:\n" +
-        "- Consult a vet for antibiotics if a bacterial infection is suspected\n" +
+        "- Give one capful of glycerin.\n" +
         "- Use anti-inflammatory or expectorant medication under professional guidance\n\n" +
         "🌿 Natural Remedies:\n" +
         "- Use garlic and honey in drinking water for natural antimicrobial effects\n" +
@@ -994,8 +999,7 @@ const ArticleDetailScreen = ({ route }) => {
         "- Ensure chickens are not overweight, as excess weight can increase the risk of injury",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Treatment:\n" +
-        "- Use antibiotics to treat bacterial infections (under veterinary guidance)\n" +
-        "- Clean the wound with antiseptic and apply topical antibiotics\n\n" +
+        "- Give 1cc of Penicillin 5 lac if the bird is over 5 months old otherwise, do not give it.\n\n" +
         "🦶 Foot Care:\n" +
         "- Soak the foot in warm, salty water to reduce swelling and encourage healing\n" +
         "- Apply a bandage if necessary to protect the foot\n\n" +
@@ -1042,8 +1046,8 @@ const ArticleDetailScreen = ({ route }) => {
         "- Consult a vet if paralysis is observed for prompt diagnosis and treatment",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Support:\n" +
-        "- Consult a vet to identify the cause of paralysis (may require tests for viruses or toxins)\n" +
-        "- Use antibiotics or antiviral medications as prescribed by a vet\n\n" +
+        "- Give Vitamin D or B12 injection, 1cc every other day, if the bird is **over 6 months old.\n" +
+        "- For birds younger than 6 months, give a protein and calcium-rich diet, such as maggots (fly larvae).\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide extra warmth and a comfortable environment to help the bird recover\n" +
         "- Administer vitamin supplements, especially Vitamin E, to support nerve function\n\n" +
@@ -1094,10 +1098,12 @@ const ArticleDetailScreen = ({ route }) => {
         "- Monitor for signs of infections and seek veterinary care when needed",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Treatment:\n" +
-        "- Consult a vet to rule out infections, parasites, or other health issues\n" +
-        "- Use antibiotics or antiparasitic medications if prescribed by the vet\n\n" +
+        "- Give one Velosef capsule and one Dispirin daily for 5 days if the bird is older than 5 months. If it is younger than 5 months, give half a capsule of both.\n" +
+        "- Give 1cc Penicillin 5 lac injection to birds that are older than 5 months.\n" +
+        "- You can also use **Brufen** if the fever is high.\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide a stress-free environment with plenty of rest and warmth\n" +
+        " - Give curd cheese (paneer from yogurt), crushed eggshells, or mealworms\n" +
         "- Offer electrolyte solutions to prevent dehydration\n\n" +
         "🚨 Critical Note:\n" +
         "Lethargy can be a sign of a serious underlying issue. Immediate attention is necessary to prevent worsening conditions.",
@@ -1147,7 +1153,8 @@ const ArticleDetailScreen = ({ route }) => {
         "- Seek prompt veterinary attention if symptoms persist",
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Treatment:\n" +
-        "- Consult a vet to determine the severity and cause of the blockage\n" +
+        "- Give tomato or jaggery.\n" +
+        "- Give Flygel 1–1.5 cc — for birds older than 6 months, give 1.5 cc, and for younger ones, give 1 cc\n" +
         "- Treatment may include gentle massage, fluids, or the use of medications to help clear the blockage\n\n" +
         "🌿 Supportive Care:\n" +
         "- Provide extra warmth and comfort to help ease digestive discomfort\n" +
@@ -1247,6 +1254,8 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Antifungal Medication:\n" +
         "- Use antifungal medications such as Nystatin or Fluconazole under veterinary guidance\n" +
+        "- Give one Velosef capsule and one Dispirin daily for 5 days if the bird is older than 5 months. If it is younger than 5 months, give half a capsule of both\n" +
+        "- Give 1cc Neurobion injection to birds older than 6 months for 3 days\n" +
         "- Follow prescribed treatment doses and duration\n\n" +
         "🌿 Natural Remedies:\n" +
         "- Adding apple cider vinegar to the water can help restore gut balance\n" +
@@ -1312,12 +1321,10 @@ const ArticleDetailScreen = ({ route }) => {
           require('../disease/SalmonellosisPrevention2.jpg'),
           require('../disease/MarekPrevention1.jpg'),
           require('../disease/VitaminADeficiencyPrevention3.jpg'),
-          // require('../disease/VitaminADeficiencyPrevention4.jpg'),
         ],
         remedies: [
           require('../disease/CalciumDeficiencyPrevention2.jpg'),
           require('../disease/VitaminADeficiencyPrevention4.jpg'),
-          // require('../disease/EDSMedicine2.jpg'),
         ],
       },
     },
@@ -1348,10 +1355,10 @@ const ArticleDetailScreen = ({ route }) => {
         "- Consult a vet for the proper dosage and supplementation guidelines",
       remedies: "Management and Treatment:\n\n" +
         "💊 Vitamin D Supplementation:\n" +
-        "- Administer Vitamin D supplements to correct the deficiency\n" +
+        "- Administer Vitamin D supplements like Avion capsule to correct the deficiency\n" +
         "- Follow veterinary advice to avoid over-supplementation and toxicity\n\n" +
         "🌿 Natural Sources:\n" +
-        "- Offer Vitamin D-rich foods like fish oil, liver, or egg yolks\n" +
+        "- Offer Vitamin D-rich foods like fish oil or egg yolks\n" +
         "- Ensure chickens have access to natural sunlight or provide UVB light in enclosed spaces\n\n" +
         "🚨 Critical Note:\n" +
         "Vitamin D deficiency can cause long-term damage to bones and egg production. Early intervention is crucial for preventing severe health issues.",
@@ -1449,7 +1456,7 @@ const ArticleDetailScreen = ({ route }) => {
       remedies: "Management and Treatment:\n\n" +
         "💊 Medical Support:\n" +
         "- Consult a vet for antibiotics or antiviral medications if necessary\n" +
-        "- Use anti-inflammatory drugs or nebulizers under veterinary guidance\n\n" +
+        "- For birds older than 6 months, give 1 full tablet of any one of these: Panadol, Brufen, Augmentin, Provas, or Deltacortril.For birds 3–6 months old, give half a tablet of any one of these.\n\n" +
         "🌿 Natural Support:\n" +
         "- Provide a warm, dry, and well-ventilated environment\n" +
         "- Offer herbs like oregano, garlic, and thyme for their natural antimicrobial properties\n\n" +

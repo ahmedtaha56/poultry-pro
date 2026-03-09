@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Dimensions, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5, Feather, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -156,8 +157,8 @@ const DiseaseandcareScreen = () => {
           <Text style={styles.recommendationTitle}>Prevention Tips</Text>
         </View>
         <Text style={styles.recommendationText}>
-          Maintain cleanliness, provide fresh water daily, and ensure proper ventilation. 
-          Most infections stem from poor hygiene and contaminated environments.
+          Keep the area clean, give fresh water every day, and allow good airflow.
+Most sickness comes from dirty places and bad hygiene.
         </Text>
         <View style={styles.tipsList}>
           <View style={styles.tipItem}>
@@ -177,8 +178,9 @@ const DiseaseandcareScreen = () => {
     </View>
   );
 
-  return (
-    <View style={styles.container}>
+  // Header component jisse header alag rahe
+  const HeaderComponent = () => (
+    <>
       {/* Enhanced Header */}
       <LinearGradient
         colors={['#E68A50', '#D17843', '#C56B36']}
@@ -203,8 +205,6 @@ const DiseaseandcareScreen = () => {
           <Text style={styles.headerSubtitle}>Poultry Health Companion</Text>
           <Text style={styles.headerTitle}>Disease Management</Text>
         </View>
-
-        {/* Removed notification icon */}
       </LinearGradient>
 
       {/* Enhanced Search Bar */}
@@ -215,7 +215,7 @@ const DiseaseandcareScreen = () => {
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search diseases, symptoms or categories..."
+            placeholder="Search diseases, symptoms"
             placeholderTextColor="#A0A0A0"
             value={searchQuery}
             onChangeText={(text) => {
@@ -237,48 +237,74 @@ const DiseaseandcareScreen = () => {
         </View>
       </View>
 
-      {/* Stats Card */}
-      <StatsCard />
-
-      {/* Enhanced Recommendation Box */}
-      <RecommendationBox />
+      {/* Conditionally render Stats Card and Recommendation Box only when search is empty */}
+      {!searchQuery && (
+        <>
+          <StatsCard />
+          <RecommendationBox />
+        </>
+      )}
 
       {/* Enhanced Disease List */}
       <View style={styles.listHeader}>
-        <Text style={styles.listTitle}>Disease Directory</Text>
-        <Text style={styles.listSubtitle}>{filteredDiseases.length} conditions found</Text>
+        <Text style={styles.listTitle}>
+          {searchQuery ? 'Search Results' : 'Disease Directory'}
+        </Text>
+        <Text style={styles.listSubtitle}>
+          {filteredDiseases.length} {searchQuery ? 'results' : 'conditions'} found
+        </Text>
       </View>
+    </>
+  );
 
-      <FlatList
-        data={filteredDiseases}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.noResultsContainer}>
-            <View style={styles.noResultsIconContainer}>
-              <MaterialIcons name="search-off" size={60} color="#E0E0E0" />
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#E68A50" />
+      
+      {/* Sirf Header ke liye - without SafeAreaView adjustment */}
+      <HeaderComponent />
+
+      {/* SafeAreaView sirf FlatList ke liye */}
+      <SafeAreaView edges={['bottom']} style={styles.safeAreaContainer}>
+        <FlatList
+          data={filteredDiseases}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={true}
+          bounces={true}
+          overScrollMode="always"
+          decelerationRate="normal"
+          ListEmptyComponent={
+            <View style={styles.noResultsContainer}>
+              <View style={styles.noResultsIconContainer}>
+                <MaterialIcons name="search-off" size={60} color="#E0E0E0" />
+              </View>
+              <Text style={styles.noResultsText}>No results found</Text>
+              <Text style={styles.noResultsSubtext}>Try adjusting your search terms</Text>
+              <TouchableOpacity 
+                style={styles.resetButton}
+                onPress={() => {
+                  setSearchQuery('');
+                  handleSearch('');
+                }}
+              >
+                <Text style={styles.resetButtonText}>Clear Search</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.noResultsText}>No results found</Text>
-            <Text style={styles.noResultsSubtext}>Try adjusting your search terms</Text>
-            <TouchableOpacity 
-              style={styles.resetButton}
-              onPress={() => {
-                setSearchQuery('');
-                handleSearch('');
-              }}
-            >
-              <Text style={styles.resetButtonText}>Clear Search</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
-    </View>
+          }
+        />
+      </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
@@ -331,11 +357,11 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
-  // removed notification styles
   searchContainer: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    backgroundColor: '#FAFAFA',
   },
   searchInnerContainer: {
     flexDirection: 'row',
@@ -406,6 +432,7 @@ const styles = StyleSheet.create({
   listHeader: {
     paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: '#FAFAFA',
   },
   listTitle: {
     fontSize: 20,
@@ -548,6 +575,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     fontWeight: '500',
+    flex: 1,
   },
   noResultsContainer: {
     alignItems: 'center',

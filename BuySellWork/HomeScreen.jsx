@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, ScrollView } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Feather, MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -16,7 +17,8 @@ const globalAppState = {
   hasInitialized: false,
   productsLoaded: false,
   timestamp: 0,
-  currentUserId: null
+  currentUserId: null,
+  dataFetchInProgress: false // Add flag to prevent concurrent fetches
 };
 const CACHE_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutes
 
@@ -61,7 +63,7 @@ const ProductItem = memo(({ item, navigation }) => {
   const getCategoryIcon = (category) => {
     switch (category) {
       case 'Live': return 'activity';
-      case 'Frozen': return 'cloud';
+      case 'Equipment': return 'tool';
       case 'Eggs': return 'circle';
       case 'Feed': return 'shopping-cart';
       default: return 'package';
@@ -71,9 +73,9 @@ const ProductItem = memo(({ item, navigation }) => {
   const getCategoryColor = (category) => {
     switch (category) {
       case 'Live': return ['#4CAF50', '#45A049'];
-      case 'Frozen': return ['#2196F3', '#1976D2'];
+      case 'Equipment': return ['#9C27B0', '#7B1FA2'];
       case 'Eggs': return ['#FF9800', '#F57C00'];
-      case 'Feed': return ['#9C27B0', '#7B1FA2'];
+      case 'Feed': return ['#2196F3', '#1976D2'];
       default: return ['#607D8B', '#455A64'];
     }
   };
@@ -99,15 +101,15 @@ const ProductItem = memo(({ item, navigation }) => {
 
         {/* Modern Price Tag */}
         <View style={styles.modernPriceContainer}>
-          <LinearGradient
-            colors={['#E68A50', '#D07A47']}
-            style={styles.modernPriceTag}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.modernPriceText}>₹{item.price}</Text>
-          </LinearGradient>
-        </View>
+  <LinearGradient
+    colors={['#E68A50', '#D07A47']}
+    style={styles.modernPriceTag}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+  >
+    <Text style={styles.modernPriceText}>Rs {item.price}</Text>
+  </LinearGradient>
+</View>
 
         {/* Category Badge */}
         <View style={styles.modernCategoryBadge}>
@@ -156,10 +158,14 @@ const ProductItem = memo(({ item, navigation }) => {
             activeOpacity={0.8}
           >
             <View style={styles.sellerInfoContainer}>
-              <Text style={styles.modernSellerName}>{item.profiles?.full_name || 'Unknown Seller'}</Text>
+              <Text style={styles.modernSellerName} numberOfLines={1}>
+                {item.profiles?.full_name || 'Unknown Seller'}
+              </Text>
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={14} color="#FFD700" />
-                <Text style={styles.ratingText}>{item.profiles?.rating ? item.profiles.rating.toFixed(1) : '0.0'}</Text>
+                <Ionicons name="star" size={12} color="#FFD700" />
+                <Text style={styles.ratingText}>
+                  {item.profiles?.rating ? item.profiles.rating.toFixed(1) : '0.0'}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -170,41 +176,30 @@ const ProductItem = memo(({ item, navigation }) => {
 });
 
 const HomeScreen = ({ navigation, route }) => {
-  // Initialize with cached data if app has been initialized
-  const [products, setProducts] = useState(() => {
-    if (globalAppState.hasInitialized && globalAppState.productsLoaded &&
-      globalProductsData.length > 0) {
-      console.log('HomeScreen: Initializing with cached data');
-      return globalProductsData;
-    }
-    return [];
-  });
-
-  const [allProducts, setAllProducts] = useState([]); // Store all products for filtering
-  const [loading, setLoading] = useState(() => {
-    return !globalAppState.hasInitialized || !globalAppState.productsLoaded;
-  });
-
+  const insets = useSafeAreaInsets();
+  
+  // Initialize state - Always start with cached data if available and user session is valid
+  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
-  
-  // New state for rating filter
   const [ratingFilterModalVisible, setRatingFilterModalVisible] = useState(false);
   const [selectedRatingFilter, setSelectedRatingFilter] = useState('all');
 
   const isFocused = useIsFocused();
 
-  // Categories from SellScreen
-  const categories = ['All', 'Live', 'Frozen', 'Eggs', 'Feed'];
+  // Categories updated with Equipment instead of Frozen
+  const categories = ['All', 'Live', 'Equipment', 'Eggs', 'Feed'];
 
   const getCategoryIcon = (category) => {
     switch (category) {
       case 'All': return 'grid';
       case 'Live': return 'activity';
-      case 'Frozen': return 'cloud';
+      case 'Equipment': return 'tool';
       case 'Eggs': return 'circle';
       case 'Feed': return 'shopping-cart';
       default: return 'package';
@@ -215,9 +210,9 @@ const HomeScreen = ({ navigation, route }) => {
     switch (category) {
       case 'All': return ['#E68A50', '#D07A47'];
       case 'Live': return ['#4CAF50', '#45A049'];
-      case 'Frozen': return ['#2196F3', '#1976D2'];
+      case 'Equipment': return ['#9C27B0', '#7B1FA2'];
       case 'Eggs': return ['#FF9800', '#F57C00'];
-      case 'Feed': return ['#9C27B0', '#7B1FA2'];
+      case 'Feed': return ['#2196F3', '#1976D2'];
       default: return ['#607D8B', '#455A64'];
     }
   };
@@ -237,14 +232,7 @@ const HomeScreen = ({ navigation, route }) => {
 
   // Handle back arrow press - navigate to specific screen
   const handleBackPress = () => {
-    // Replace 'TargetScreen' with the actual screen name you want to navigate to
-    // For example: 'Dashboard', 'Menu', 'Settings', etc.
-    navigation.navigate('JobCategory'); // Change this to your desired screen
-    
-    // Alternative navigation options:
-    // navigation.goBack(); // Go back to previous screen
-    // navigation.navigate('TabNavigator', { screen: 'Dashboard' }); // Navigate to specific tab
-    // navigation.reset({ index: 0, routes: [{ name: 'Dashboard' }] }); // Reset stack to specific screen
+    navigation.navigate('JobCategory');
   };
 
   // Filter products based on selected category
@@ -297,12 +285,13 @@ const HomeScreen = ({ navigation, route }) => {
     setProducts(filteredProducts);
   }, [allProducts, filterProducts, filterProductsByRating, selectedCategory]);
 
-  // Check if user has changed (for logout/login scenarios)
-  const checkUserSession = useCallback(async () => {
+  // Check if user has changed and determine if we should use cache
+  const checkUserSessionAndCache = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const currentUserId = user?.id;
 
+      // If user changed, clear cache
       if (currentUserId !== globalAppState.currentUserId) {
         console.log('User session changed, clearing cache');
         globalProductsData.length = 0;
@@ -310,37 +299,67 @@ const HomeScreen = ({ navigation, route }) => {
         globalAppState.productsLoaded = false;
         globalAppState.currentUserId = currentUserId;
         globalAppState.timestamp = 0;
-        return true;
+        return { userChanged: true, canUseCache: false };
       }
 
-      return false;
+      // Check if cache is valid and usable
+      const cacheValid = globalAppState.hasInitialized && 
+                         globalAppState.productsLoaded && 
+                         globalProductsData.length > 0 &&
+                         (Date.now() - globalAppState.timestamp < CACHE_EXPIRY_TIME);
+
+      return { userChanged: false, canUseCache: cacheValid };
     } catch (error) {
       console.error('Error checking user session:', error);
-      return false;
+      return { userChanged: true, canUseCache: false };
     }
   }, []);
 
-  // Enhanced fetchProducts with both category and rating filtering
-  const fetchProducts = useCallback(async (pageNum = 1, refresh = false) => {
-    const userChanged = await checkUserSession();
-
-    if (!userChanged && !refresh && globalAppState.hasInitialized &&
-      globalAppState.productsLoaded && globalProductsData.length > 0 &&
-      (Date.now() - globalAppState.timestamp < CACHE_EXPIRY_TIME)) {
-      console.log('HomeScreen: Using cached products data');
+  // Load cached data immediately if available
+  const loadCachedDataIfAvailable = useCallback(async () => {
+    const { canUseCache } = await checkUserSessionAndCache();
+    
+    if (canUseCache) {
+      console.log('HomeScreen: Loading cached data immediately');
+      setAllProducts(globalProductsData);
       let filteredProducts = filterProducts(globalProductsData, selectedCategory);
       filteredProducts = filterProductsByRating(filteredProducts, selectedRatingFilter);
       setProducts(filteredProducts);
+      setLoading(false);
+      return true;
+    }
+    return false;
+  }, [selectedCategory, selectedRatingFilter, filterProducts, filterProductsByRating, checkUserSessionAndCache]);
+
+  // Enhanced fetchProducts with better cache handling
+  const fetchProducts = useCallback(async (pageNum = 1, refresh = false) => {
+    // Prevent concurrent fetches
+    if (globalAppState.dataFetchInProgress && !refresh) {
+      console.log('Data fetch already in progress, skipping');
+      return;
+    }
+
+    const { userChanged, canUseCache } = await checkUserSessionAndCache();
+
+    // If we can use cache and it's not a refresh, use cached data
+    if (!userChanged && !refresh && canUseCache) {
+      console.log('HomeScreen: Using cached products data');
       setAllProducts(globalProductsData);
+      let filteredProducts = filterProducts(globalProductsData, selectedCategory);
+      filteredProducts = filterProductsByRating(filteredProducts, selectedRatingFilter);
+      setProducts(filteredProducts);
       setLoading(false);
       return;
     }
 
+    // Set loading states
     if (refresh) {
       setRefreshing(true);
-    } else if (!globalAppState.hasInitialized) {
+    } else {
       setLoading(true);
     }
+
+    globalAppState.dataFetchInProgress = true;
 
     try {
       const PAGE_SIZE = 20;
@@ -384,25 +403,27 @@ const HomeScreen = ({ navigation, route }) => {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      globalAppState.dataFetchInProgress = false;
     }
-  }, [selectedCategory, selectedRatingFilter, allProducts, filterProducts, filterProductsByRating, checkUserSession]);
+  }, [selectedCategory, selectedRatingFilter, allProducts, filterProducts, filterProductsByRating, checkUserSessionAndCache]);
 
-  // Initial load effect
+  // Initial load effect - Load cached data first, then fetch if needed
   useEffect(() => {
-    console.log('HomeScreen: Mount effect - App initialized:', globalAppState.hasInitialized);
-
-    if (!globalAppState.hasInitialized) {
-      console.log('HomeScreen: First time initialization');
-      fetchProducts(1, false);
-    } else if (globalProductsData.length > 0) {
-      console.log('HomeScreen: Using existing cached data');
-      setAllProducts(globalProductsData);
-      let filteredProducts = filterProducts(globalProductsData, selectedCategory);
-      filteredProducts = filterProductsByRating(filteredProducts, selectedRatingFilter);
-      setProducts(filteredProducts);
-      setLoading(false);
-    }
-  }, []);
+    console.log('HomeScreen: Initial mount effect');
+    
+    const initializeScreen = async () => {
+      // Try to load cached data first
+      const cacheLoaded = await loadCachedDataIfAvailable();
+      
+      // If no cache was loaded, fetch fresh data
+      if (!cacheLoaded) {
+        console.log('HomeScreen: No valid cache, fetching fresh data');
+        fetchProducts(1, false);
+      }
+    };
+    
+    initializeScreen();
+  }, []); // Remove dependencies to prevent re-runs
 
   // Listen to product update events to update UI instantly
   useEffect(() => {
@@ -415,7 +436,7 @@ const HomeScreen = ({ navigation, route }) => {
     return unsubscribe;
   }, []);
 
-  // Focus effect
+  // Focus effect - Only refresh if explicitly requested or cache expired
   useEffect(() => {
     if (isFocused) {
       console.log('HomeScreen: Screen focused');
@@ -427,6 +448,7 @@ const HomeScreen = ({ navigation, route }) => {
         return;
       }
 
+      // Check cache expiry only if we have initialized data
       if (globalAppState.hasInitialized && globalAppState.productsLoaded &&
         (Date.now() - globalAppState.timestamp > CACHE_EXPIRY_TIME)) {
         console.log('HomeScreen: Cache expired, refreshing silently');
@@ -461,8 +483,8 @@ const HomeScreen = ({ navigation, route }) => {
     fetchProducts(1, true);
   };
 
-  // Modern Loading Screen
-  if (!globalAppState.hasInitialized && loading && products.length === 0) {
+  // Show loading only if we have no products and are actually loading
+  if (loading && products.length === 0) {
     return (
       <View style={styles.modernLoadingContainer}>
         <LinearGradient
@@ -485,7 +507,7 @@ const HomeScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.modernContainer}>
-      {/* Modern Header with Back Arrow */}
+      {/* Modern Header with Back Arrow - Made Smaller */}
       <LinearGradient
         colors={['#E68A50', '#D07A47']}
         style={styles.modernHeader}
@@ -499,14 +521,11 @@ const HomeScreen = ({ navigation, route }) => {
             onPress={handleBackPress}
             activeOpacity={0.8}
           >
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={20} color="#fff" />
           </TouchableOpacity>
 
           <View style={styles.modernHeaderLeft}>
-            <Text style={styles.modernHeaderTitle}>Fresh Market</Text>
-            <Text style={styles.modernHeaderSubtitle}>
-              {getRatingFilterText(selectedRatingFilter)} • {products.length} products
-            </Text>
+            <Text style={styles.modernHeaderTitle}>Fresh Market • {products.length} products</Text>
           </View>
           
           <View style={styles.modernHeaderActions}>
@@ -514,7 +533,7 @@ const HomeScreen = ({ navigation, route }) => {
               style={styles.modernActionButton}
               onPress={() => setSearchModalVisible(true)}
             >
-              <Feather name="search" size={20} color="#fff" />
+              <Feather name="search" size={18} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity 
               style={[
@@ -523,7 +542,7 @@ const HomeScreen = ({ navigation, route }) => {
               ]}
               onPress={() => setRatingFilterModalVisible(true)}
             >
-              <Feather name="filter" size={20} color="#fff" />
+              <Feather name="filter" size={18} color="#fff" />
               {selectedRatingFilter !== 'all' && (
                 <View style={styles.filterBadge}>
                   <View style={styles.filterBadgeDot} />
@@ -538,7 +557,7 @@ const HomeScreen = ({ navigation, route }) => {
         data={products}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <ProductItem item={item} navigation={navigation} />}
-        contentContainerStyle={styles.modernListContent}
+        contentContainerStyle={[styles.modernListContent, { paddingBottom: insets.bottom > 0 ? insets.bottom + 16 : 16 }]}
         showsVerticalScrollIndicator={false}
         numColumns={2}
         columnWrapperStyle={styles.modernColumnWrapper}
@@ -557,7 +576,7 @@ const HomeScreen = ({ navigation, route }) => {
             <View style={styles.modernSectionHeader}>
               <Text style={styles.modernSectionTitle}>Categories</Text>
               <Text style={styles.modernProductCount}>
-                {products.length} products
+                {getRatingFilterText(selectedRatingFilter)}
               </Text>
             </View>
 
@@ -584,14 +603,14 @@ const HomeScreen = ({ navigation, route }) => {
                       end={{ x: 1, y: 1 }}
                     >
                       <View style={styles.modernCategoryIconContainer}>
-                        <Feather name={getCategoryIcon(category)} size={20} color="#fff" />
+                        <Feather name={getCategoryIcon(category)} size={18} color="#fff" />
                       </View>
                       <Text style={styles.modernSelectedCategoryLabel}>{category}</Text>
                     </LinearGradient>
                   ) : (
                     <View style={styles.modernCategoryContent}>
                       <View style={styles.modernInactiveCategoryIconContainer}>
-                        <Feather name={getCategoryIcon(category)} size={20} color="#999" />
+                        <Feather name={getCategoryIcon(category)} size={18} color="#999" />
                       </View>
                       <Text style={styles.modernCategoryLabel}>{category}</Text>
                     </View>
@@ -681,12 +700,13 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     fontSize: 16,
   },
+  // Updated Header Styles - Made Smaller
   modernHeader: {
     paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingHorizontal: 16,
+    paddingBottom: 12, // Reduced from 20
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   modernHeaderContent: {
     flexDirection: 'row',
@@ -694,35 +714,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modernBackButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36, // Reduced from 44
+    height: 36, // Reduced from 44
+    borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   modernHeaderLeft: {
     flex: 1,
   },
   modernHeaderTitle: {
-    fontSize: 28,
+    fontSize: 18, // Reduced from 28
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 4,
-  },
-  modernHeaderSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
   },
   modernHeaderActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
   },
   modernActionButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36, // Reduced from 44
+    height: 36, // Reduced from 44
+    borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -733,20 +748,20 @@ const styles = StyleSheet.create({
   },
   filterBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 6,
+    right: 6,
   },
   filterBadgeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#FFD700',
   },
   modernCategoriesSection: {
-    paddingVertical: 20,
+    paddingVertical: 16, // Reduced from 20
     backgroundColor: '#fff',
     marginHorizontal: 16,
-    marginTop: 16,
+    marginTop: 12, // Reduced from 16
     marginBottom: 8,
     borderRadius: 16,
     elevation: 2,
@@ -759,28 +774,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    marginBottom: 12,
   },
   modernSectionTitle: {
-    fontSize: 20,
+    fontSize: 18, // Reduced from 20
     fontWeight: 'bold',
     color: '#1a202c',
   },
   modernProductCount: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     backgroundColor: '#f1f5f9',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   modernCategoryScrollContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   modernCategoryCard: {
-    marginRight: 12,
-    borderRadius: 16,
+    marginRight: 10,
+    borderRadius: 14,
     overflow: 'hidden',
     elevation: 2,
     shadowColor: '#000',
@@ -793,44 +808,44 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
   },
   modernCategoryGradient: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10, // Reduced from 14
+    paddingHorizontal: 16,
     alignItems: 'center',
-    minWidth: 90,
+    minWidth: 75, // Reduced from 90
   },
   modernCategoryContent: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10, // Reduced from 14
+    paddingHorizontal: 16,
     alignItems: 'center',
     backgroundColor: '#f8fafc',
-    minWidth: 90,
+    minWidth: 75, // Reduced from 90
   },
   modernCategoryIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30, // Reduced from 36
+    height: 30, // Reduced from 36
+    borderRadius: 15,
     backgroundColor: 'rgba(255,255,255,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   modernInactiveCategoryIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30, // Reduced from 36
+    height: 30, // Reduced from 36
+    borderRadius: 15,
     backgroundColor: '#e2e8f0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   modernSelectedCategoryLabel: {
-    fontSize: 12,
+    fontSize: 11, // Reduced from 12
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
   },
   modernCategoryLabel: {
-    fontSize: 12,
+    fontSize: 11, // Reduced from 12
     fontWeight: '500',
     color: '#64748b',
     textAlign: 'center',
@@ -841,23 +856,24 @@ const styles = StyleSheet.create({
   },
   modernColumnWrapper: {
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 12, // Reduced from 16
   },
+  // Updated Product Card Styles - Made Smaller
   modernProductCard: {
     flex: 1,
     marginHorizontal: 4,
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 16, // Reduced from 20
     overflow: 'hidden',
-    elevation: 4,
+    elevation: 3, // Reduced from 4
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 }, // Reduced from 4
+    shadowOpacity: 0.1, // Reduced from 0.12
+    shadowRadius: 6, // Reduced from 8
   },
   modernImageContainer: {
     position: 'relative',
-    height: 200,
+    height: 160, // Reduced from 200
     backgroundColor: '#f1f5f9',
   },
   modernImagePlaceholder: {
@@ -880,17 +896,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 80,
+    height: 60, // Reduced from 80
   },
   modernPriceContainer: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: 10, // Reduced from 12
+    right: 10, // Reduced from 12
   },
   modernPriceTag: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+    paddingVertical: 6, // Reduced from 8
+    paddingHorizontal: 10, // Reduced from 12
+    borderRadius: 14, // Reduced from 16
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -900,54 +916,54 @@ const styles = StyleSheet.create({
   modernPriceText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
   },
   modernCategoryBadge: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 10, // Reduced from 12
+    left: 10, // Reduced from 12
   },
   modernCategoryGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 3, // Reduced from 4
+    paddingHorizontal: 6, // Reduced from 8
+    borderRadius: 10, // Reduced from 12
   },
   modernCategoryText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 10,
-    marginLeft: 4,
+    fontSize: 9, // Reduced from 10
+    marginLeft: 3, // Reduced from 4
   },
   modernWeightBadge: {
     position: 'absolute',
-    bottom: 12,
-    left: 12,
+    bottom: 10, // Reduced from 12
+    left: 10, // Reduced from 12
   },
   modernWeightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 3, // Reduced from 4
+    paddingHorizontal: 6, // Reduced from 8
+    borderRadius: 10, // Reduced from 12
   },
   modernWeightText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 10,
-    marginLeft: 4,
+    fontSize: 9, // Reduced from 10
+    marginLeft: 3, // Reduced from 4
   },
   modernProductInfo: {
-    padding: 16,
+    padding: 12, // Reduced from 16
   },
   modernProductTitle: {
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: 'bold',
     color: '#1a202c',
-    marginBottom: 12,
-    lineHeight: 20,
+    marginBottom: 8, // Reduced from 12
+    lineHeight: 18, // Reduced from 20
   },
   modernSellerSection: {
     flexDirection: 'row',
@@ -955,45 +971,44 @@ const styles = StyleSheet.create({
   },
   modernAvatarContainer: {
     position: 'relative',
-    marginRight: 12,
+    marginRight: 8, // Reduced from 12
   },
   modernAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28, // Reduced from 32
+    height: 28, // Reduced from 32
+    borderRadius: 14, // Reduced from 16
     backgroundColor: '#f1f5f9',
     borderWidth: 2,
     borderColor: '#fff',
   },
-
   modernSellerInfo: {
     flex: 1,
   },
   modernSellerName: {
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 2,
+    flex: 1,
   },
   sellerInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // Changed from gap: 4
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.05)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
+    paddingHorizontal: 6, // Reduced from 8
+    paddingVertical: 3, // Reduced from 4
+    borderRadius: 10, // Reduced from 12
+    marginLeft: 6, // Added to ensure spacing
   },
   ratingText: {
-    fontSize: 12,
+    fontSize: 10, // Reduced from 12
     fontWeight: '600',
     color: '#374151',
-    marginLeft: 4,
+    marginLeft: 2, // Reduced from 4
   },
   modernEmptyContainer: {
     alignItems: 'center',
@@ -1034,4 +1049,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
 export default HomeScreen;

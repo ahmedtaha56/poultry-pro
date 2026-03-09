@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, TextInput, Dimensions, Modal, Alert } from 'react-native';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { supabase } from '../lib/supabase';
+import { decode } from 'base64-arraybuffer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getSellEntryFrom, clearSellEntryFrom, getLastFocusedTab, getPrevFocusedTab } from '../lib/navHistory';
 
@@ -25,7 +27,8 @@ const SellScreen = ({ navigation, route }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = ['Live', 'Frozen', 'Eggs', 'Feed',];
+  // Categories updated with Equipment instead of Frozen
+  const categories = ['Live', 'Equipment', 'Eggs', 'Feed'];
   const deliveryOptions = ['Home Delivery', 'Pickup', 'Both'];
 
   const pickImage = async () => {
@@ -135,14 +138,13 @@ const SellScreen = ({ navigation, route }) => {
         const fileName = `product_${Date.now()}_${index}.jpg`;
         const filePath = `products/${userId}/${fileName}`;
 
-        // Convert image to blob
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
+        // Read the image file as a base64 string
+        const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: 'base64' });
 
         // Upload with error handling
         const { error: uploadError } = await supabase.storage
           .from('product_images')
-          .upload(filePath, blob, {
+          .upload(filePath, decode(base64), {
             contentType: 'image/jpeg',
             upsert: false,
             cacheControl: '3600' // 1 hour cache
@@ -272,7 +274,7 @@ const SellScreen = ({ navigation, route }) => {
         <View style={styles.headerSpacer} />
       </LinearGradient>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         {/* Enhanced Product Images Section */}
         <View style={styles.imageSection}>
           <View style={styles.sectionHeader}>
@@ -371,7 +373,7 @@ const SellScreen = ({ navigation, route }) => {
           <View style={styles.row}>
             <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
               <Text style={styles.inputLabel}>
-                Price (₹) <Text style={styles.required}>*</Text>
+                Price (₨) <Text style={styles.required}>*</Text>
               </Text>
               <View style={styles.inputWrapper}>
                 <TextInput
@@ -382,7 +384,7 @@ const SellScreen = ({ navigation, route }) => {
                   value={price}
                   onChangeText={setPrice}
                 />
-                <Feather name="dollar-sign" size={18} color="#E68A50" style={styles.inputIcon} />
+                <Text style={styles.priceIconText}>₨</Text>
               </View>
             </View>
 
@@ -391,7 +393,7 @@ const SellScreen = ({ navigation, route }) => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="e.g. 1.5-2kg"
+                  placeholder="e.g. 2kg"
                   placeholderTextColor="#999"
                   value={weight}
                   onChangeText={setWeight}
@@ -423,7 +425,7 @@ const SellScreen = ({ navigation, route }) => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Available units"
+                  placeholder="e.g. 50"
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                   value={stockQuantity}
@@ -445,7 +447,7 @@ const SellScreen = ({ navigation, route }) => {
               <View style={styles.categoryContent}>
                 <View style={styles.categoryIconWrapper}>
                   {category === 'Live' && <Feather name="activity" size={20} color="#E68A50" />}
-                  {category === 'Frozen' && <Feather name="cloud" size={20} color="#E68A50" />}
+                  {category === 'Equipment' && <Feather name="tool" size={20} color="#E68A50" />}
                   {category === 'Eggs' && <Feather name="circle" size={20} color="#E68A50" />}
                   {category === 'Feed' && <Feather name="shopping-cart" size={20} color="#E68A50" />}
                 </View>
@@ -602,7 +604,7 @@ const SellScreen = ({ navigation, route }) => {
                       category === cat && styles.selectedCategoryIcon
                     ]}>
                       {cat === 'Live' && <Feather name="activity" size={22} color={category === cat ? 'white' : '#E68A50'} />}
-                      {cat === 'Frozen' && <Feather name="cloud" size={22} color={category === cat ? 'white' : '#E68A50'} />}
+                      {cat === 'Equipment' && <Feather name="tool" size={22} color={category === cat ? 'white' : '#E68A50'} />}
                       {cat === 'Eggs' && <Feather name="circle" size={22} color={category === cat ? 'white' : '#E68A50'} />}
                       {cat === 'Feed' && <Feather name="shopping-cart" size={22} color={category === cat ? 'white' : '#E68A50'} />}
                     </View>
@@ -699,7 +701,7 @@ const styles = StyleSheet.create({
   },
   imageScrollContainer: {
     paddingVertical: 5,
-    paddingRight: 20, // Add right padding to prevent cut-off
+    paddingRight: 20,
   },
   imageContainer: {
     width: 130,
@@ -825,6 +827,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 15,
     top: 17,
+  },
+  priceIconText: {
+    position: 'absolute',
+    right: 15,
+    top: 17,
+    fontSize: 18,
+    color: '#E68A50',
+    fontWeight: 'bold',
   },
   descriptionInput: {
     height: 120,
